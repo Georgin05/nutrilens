@@ -7,6 +7,10 @@ class ProductResponse(BaseModel):
     ingredients: Optional[str] = None
     nutri_score: Optional[str] = None
     processed_level: Optional[int] = None
+    calories: Optional[float] = None
+    protein_g: Optional[float] = None
+    carbs_g: Optional[float] = None
+    fat_g: Optional[float] = None
     
     # Analysis fields
     health_score: str # Green, Yellow, Red

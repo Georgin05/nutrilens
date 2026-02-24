@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import create_db_and_tables
-from app.api.routes import products, users
+from app.api.routes import products, users, logs, analytics
 
 # Database Initialization
 def lifespan(app: FastAPI):
@@ -27,6 +27,8 @@ app.add_middleware(
 
 app.include_router(products.router)
 app.include_router(users.router)
+app.include_router(logs.router)
+app.include_router(analytics.router)
 
 @app.get("/")
 def read_root():

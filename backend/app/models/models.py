@@ -15,6 +15,10 @@ class Product(SQLModel, table=True):
     ingredients: Optional[str] = None
     nutri_score: Optional[str] = None
     processed_level: Optional[int] = None # Assuming NOVA score 1-4
+    calories: Optional[float] = None
+    protein_g: Optional[float] = None
+    carbs_g: Optional[float] = None
+    fat_g: Optional[float] = None
 
 class DailyLog(SQLModel, table=True):
     __tablename__ = "daily_logs"
