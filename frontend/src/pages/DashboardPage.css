@@ -1,0 +1,205 @@
+/* Root variables specific to the Dashboard */
+:root {
+    --dashboard-bg-light: #f0f4f3;
+    --dashboard-bg-dark: #0f1713;
+    --clay-primary: #13ec80;
+    --clay-dark: #1e293b;
+}
+
+/* Base Body Application (managed by useEffect) */
+body.dashboard-body {
+    background-color: var(--dashboard-bg-light);
+    overflow-y: auto;
+}
+
+.dark body.dashboard-body {
+    background-color: var(--dashboard-bg-dark);
+}
+
+/* Reusable Utilities missing from Vanilla CSS setup */
+.rounded-clay {
+    border-radius: 2rem;
+}
+
+.dashboard-wrapper {
+    height: 100vh;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.dashboard-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.col-span-12 {
+    grid-column: span 12 / span 12;
+}
+
+@media (min-width: 1280px) {
+    .col-span-7 {
+        grid-column: span 7 / span 7;
+    }
+
+    .col-span-5 {
+        grid-column: span 5 / span 5;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+@media (min-width: 1536px) {
+    .hidden.2xl\:flex {
+        display: flex;
+    }
+}
+
+@media (min-width: 1280px) {
+    .hidden.xl\:flex {
+        display: flex;
+    }
+}
+
+.clay-card-light {
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(19, 236, 128, 0.3);
+    /* Emerald Edge */
+    box-shadow:
+        0 8px 32px 0 rgba(0, 0, 0, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8),
+        0 0 15px rgba(19, 236, 128, 0.15);
+    /* Soft glowing aura */
+}
+
+.dark .clay-card-dark {
+    background-color: rgba(15, 23, 19, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(19, 236, 128, 0.5);
+    /* Glowing Emerald Edge */
+    box-shadow:
+        0 8px 32px 0 rgba(0, 0, 0, 0.3),
+        inset 0 0 0 1px rgba(19, 236, 128, 0.2),
+        0 0 25px rgba(19, 236, 128, 0.25);
+    /* Stronger glowing aura */
+}
+
+/* Weightless Drift Animation (High-Performance for Mobile) */
+@keyframes weightlessDrift {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.drift {
+    animation: weightlessDrift 6s ease-in-out infinite;
+    will-change: transform;
+}
+
+.clay-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow:
+        8px 8px 16px rgba(19, 236, 128, 0.2),
+        -4px -4px 12px rgba(255, 255, 255, 0.1),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clay-btn:active {
+    transform: scale(0.95);
+}
+
+.clay-ring {
+    filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.clay-thumb {
+    box-shadow:
+        inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom Gradients and Glows mapped from arbitrary tailwind classes */
+.shadow-primary-glow {
+    box-shadow: 0 0 8px rgba(19, 236, 128, 0.6);
+}
+
+.shadow-teal-glow {
+    box-shadow: 0 0 8px rgba(20, 184, 166, 0.6);
+}
+
+.shadow-amber {
+    box-shadow: 0 4px 14px 0 rgba(251, 191, 36, 0.3);
+}
+
+/* Colors specifically used in dashboard HTML */
+.text-teal-500 {
+    color: #14b8a6;
+}
+
+.bg-teal-500 {
+    background-color: #14b8a6;
+}
+
+.bg-teal-500-10 {
+    background-color: rgba(20, 184, 166, 0.1);
+}
+
+.border-teal-500-10 {
+    border-color: rgba(20, 184, 166, 0.1);
+}
+
+.text-amber-500 {
+    color: #f59e0b;
+}
+
+.text-amber-400 {
+    color: #fbbf24;
+}
+
+.bg-amber-500-10 {
+    background-color: rgba(245, 158, 11, 0.1);
+}
+
+.bg-amber-400 {
+    background-color: #fbbf24;
+}
+
+.bg-blue-500-10 {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.text-blue-500 {
+    color: #3b82f6;
+}
+
+/* Custom Scrollbar for Main Area */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(19, 236, 128, 0.2);
+    border-radius: 20px;
+}

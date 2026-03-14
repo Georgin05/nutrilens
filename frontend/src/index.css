@@ -1,46 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Vibrant Light Theme */
-  --bg-color: #f8fafc;
-  --bg-secondary: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  
-  --primary-color: #10b981; /* Emerald/Health Green */
-  --primary-hover: #059669;
-  --accent-color: #3b82f6; /* Blue */
-  --accent-hover: #2563eb;
-  
-  /* Status Colors */
-  --status-green: #22c55e;
-  --status-yellow: #eab308;
-  --status-red: #ef4444;
+  /* User provided Tailwind Palette */
+  --primary: #13ec80;
+  --bg-light: #f6f8f7;
+  --bg-dark: #102219;
 
-  --border-color: #e2e8f0;
-  
-  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  /* Additional neutral shades for light mode */
+  --text-primary: #0f172a;
+  /* slate-900 */
+  --text-secondary: #475569;
+  /* slate-600 */
+  --text-tertiary: #94a3b8;
+  /* slate-400 */
+
+  --border-color: rgba(15, 23, 42, 0.1);
+  /* slate-900/10 */
+  --border-light: rgba(15, 23, 42, 0.05);
+  /* slate-900/5 */
+
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+  /* slate-200 */
+
+  /* Tailwind colors needed by dashboard */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  --card-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 .dark {
-  /* Premium Dark Theme */
-  --bg-color: #0f172a; /* Deep Slate */
-  --bg-secondary: #1e293b;
+  /* Additional neutral shades for dark mode */
   --text-primary: #f8fafc;
+  /* slate-50 */
   --text-secondary: #cbd5e1;
-  
-  --primary-color: #34d399; 
-  --primary-hover: #10b981;
-  --accent-color: #60a5fa;
-  --accent-hover: #3b82f6;
-  
-  --border-color: #334155;
-  
-  --card-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  /* slate-300 */
+  --text-tertiary: #64748b;
+  /* slate-500 */
+
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+
+  --card-bg: #182e22;
+  /* slightly lighter than bg-dark */
+  --input-bg: #102219;
+  --input-border: #294936;
+
+  --card-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
 }
 
 * {
@@ -50,17 +63,16 @@
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
-  background-color: var(--bg-color);
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-light);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
-  overflow-x: hidden;
-  line-height: 1.6;
+  line-height: 1.5;
+  min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  line-height: 1.2;
-  font-weight: 700;
+body.dark {
+  background-color: var(--bg-dark);
 }
 
 a {
@@ -71,40 +83,44 @@ a {
 button {
   cursor: pointer;
   font-family: inherit;
+  border: none;
+  background: none;
 }
 
-/* Base Utilities */
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 2rem;
+/* Material Icons utility */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-.gradient-text {
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Base structural classes */
+.flex {
+  display: flex;
 }
 
-/* Glassmorphism */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+.items-center {
+  align-items: center;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.justify-center {
+  justify-content: center;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+.justify-between {
+  justify-content: space-between;
 }
 
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}

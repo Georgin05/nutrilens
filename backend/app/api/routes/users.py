@@ -56,24 +56,31 @@ def update_user_profile(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
-    # Calculate BMR based on Harris-Benedict
-    try:
-        bmr = calculate_bmr(
-            weight_kg=profile_in.weight_kg,
-            height_cm=profile_in.height_cm,
-            age_years=profile_in.age_years,
-            gender=profile_in.gender
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    # Calculate BMR based on Harris-Benedict if all required fields are present
+    if (profile_in.weight_kg is not None and 
+        profile_in.height_cm is not None and 
+        profile_in.age_years is not None and 
+        profile_in.gender is not None):
+        try:
+            bmr = calculate_bmr(
+                weight_kg=profile_in.weight_kg,
+                height_cm=profile_in.height_cm,
+                age_years=profile_in.age_years,
+                gender=profile_in.gender
+            )
+            current_user.bmr = bmr
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
     
-    # Update the DB User
-    current_user.bmr = bmr
-    if profile_in.health_goal:
-        current_user.health_goal = profile_in.health_goal
+    # Update other fields dynamically
+    update_data = profile_in.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
         
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
+    
+    return current_user
     
     return current_user

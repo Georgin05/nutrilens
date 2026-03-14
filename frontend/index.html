@@ -1,13 +1,58 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriLens | Precision Nutrition</title>
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+
+  <!-- Quicksand Font for Scanning Page -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN for Scanning Page -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "emerald-clay": "#13ec80",
+            "amber-clay": "#f59e0b",
+            "red-clay": "#ef4444",
+            "charcoal-clay": "#2d3436",
+            "bg-dark": "#102219",
+            /* New Profile Page variables */
+            "primary": "#13ec80",
+            "accent-amber": "#fbbf24",
+            "background-light": "#f6f8f7",
+            "background-dark": "#102219",
+            "clay-surface": "#1a2e24",
+          },
+          fontFamily: {
+            "display": ["Inter", "Quicksand", "sans-serif"]
+          },
+          boxShadow: {
+            'clay-sm': 'inset 2px 2px 4px rgba(255, 255, 255, 0.05), inset -2px -2px 4px rgba(0, 0, 0, 0.3), 4px 4px 8px rgba(0, 0, 0, 0.4)',
+            'clay-md': 'inset 4px 4px 8px rgba(255, 255, 255, 0.05), inset -4px -4px 8px rgba(0, 0, 0, 0.4), 8px 8px 16px rgba(0, 0, 0, 0.5)',
+            'clay-primary': 'inset 4px 4px 8px rgba(255, 255, 255, 0.4), inset -4px -4px 8px rgba(0, 0, 0, 0.2), 0px 8px 16px rgba(19, 236, 128, 0.3)',
+          }
+        },
+      },
+    }
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

@@ -7,6 +7,7 @@ from app.db.database import get_session
 from app.models.models import User, Product, DailyLog
 from app.api.deps import get_current_user
 from app.services.analysis import calculate_health_score, parse_ingredients
+from app.services.ai_insights import generate_weekly_insight
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
@@ -114,3 +115,50 @@ def get_pantry_audit(
         "counts": grade_counts,
         "red_flagged_items": red_items
     }
+
+@router.get("/ai-insights", response_model=Dict[str, str])
+def get_ai_insights(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    # Get logs from the last 7 days
+    today = datetime.utcnow().date()
+    start_date = today - timedelta(days=6)
+    start_datetime = datetime(start_date.year, start_date.month, start_date.day)
+
+    statement = select(DailyLog, Product).join(Product).where(
+        DailyLog.user_id == current_user.id,
+        DailyLog.timestamp >= start_datetime
+    )
+    result = session.exec(statement).all()
+
+    analytics_data = {"logs_per_day": {}, "calories_per_day": {}, "health_scores": []}
+    
+    for i in range(7):
+        d = str(start_date + timedelta(days=i))
+        analytics_data["logs_per_day"][d] = []
+        analytics_data["calories_per_day"][d] = 0.0
+
+    for log, product in result:
+        log_date = str(log.timestamp.date())
+        if log_date in analytics_data["logs_per_day"]:
+            analytics_data["logs_per_day"][log_date].append(product.name)
+            analytics_data["calories_per_day"][log_date] += (product.calories or 0.0) * log.serving_size
+            
+        flagged = parse_ingredients(product.ingredients)
+        health_score = calculate_health_score(
+            nova_group=product.processed_level or 0,
+            nutri_score=product.nutri_score.lower() if product.nutri_score else "unknown",
+            flagged_count=len(flagged)
+        )
+        analytics_data["health_scores"].append(health_score)
+
+    if analytics_data["health_scores"]:
+        most_frequent = max(set(analytics_data["health_scores"]), key=analytics_data["health_scores"].count)
+        analytics_data["most_frequent_health_score"] = most_frequent
+    else:
+        analytics_data["most_frequent_health_score"] = "None"
+
+    insight_text = generate_weekly_insight(analytics_data)
+    
+    return {"insight": insight_text}

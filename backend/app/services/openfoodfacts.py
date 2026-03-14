@@ -22,6 +22,7 @@ def fetch_product_info(barcode: str) -> Optional[Dict[str, Any]]:
                 "nutri_score": product_data.get("nutriscore_grade", "unknown").upper(),
                 "processed_level": product_data.get("nova_group", 0), # 1-4, 0 if unknown
                 "additives": product_data.get("additives_tags", []),
+                "categories": product_data.get("categories_tags", []),
                 "calories": nutriments.get("energy-kcal_100g"),
                 "protein_g": nutriments.get("proteins_100g"),
                 "carbs_g": nutriments.get("carbohydrates_100g"),

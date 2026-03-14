@@ -1,6 +1,8 @@
 import { ScanBarcode, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Hero() {
+    const navigate = useNavigate();
     return (
         <section className="hero">
             <div className="hero-bg-glow"></div>
@@ -17,15 +19,15 @@ export default function Hero() {
                 </p>
 
                 <div className="hero-buttons">
-                    <button className="btn-primary shrink-0">
+                    <button className="btn-primary shrink-0" onClick={() => navigate('/scan')}>
                         <ScanBarcode size={24} />
                         Start Scanning
                     </button>
 
-                    <button className="btn-secondary">
+                    <a href="#features" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center' }}>
                         Learn More
                         <ChevronRight size={20} className="ml-2" />
-                    </button>
+                    </a>
                 </div>
             </div>
         </section>
