@@ -7,6 +7,7 @@ from app.db.database import get_session
 from app.models.models import User, Product, DailyLog
 from app.api.deps import get_current_user
 from app.models.schemas import DailyLogCreate, DailyLogResponse, DailySummaryResponse
+from app.services.admin_activity_service import log_activity
 
 router = APIRouter(prefix="/logs", tags=["Logs"])
 
@@ -29,6 +30,14 @@ def log_consumption(
         timestamp=datetime.utcnow()
     )
     session.add(new_log)
+    log_activity(
+        session=session,
+        user_id=current_user.id,
+        action="consume",
+        target=product.name,
+        metadata={"barcode": log_in.barcode, "serving_size": log_in.serving_size},
+        commit=False,
+    )
     session.commit()
     session.refresh(new_log)
 

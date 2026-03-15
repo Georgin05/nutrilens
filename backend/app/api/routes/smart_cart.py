@@ -7,6 +7,7 @@ from app.api.deps import get_current_user
 from app.models.models import User, SmartCart
 from app.models.schemas import SmartCartCreate, SmartCartResponse
 from app.services.smart_cart_engine import generate_mock_smart_cart
+from app.services.admin_activity_service import log_activity
 
 router = APIRouter()
 
@@ -30,6 +31,14 @@ def create_smart_cart(*, session: Session = Depends(get_db), current_user: User 
         cart_json=cart_json
     )
     session.add(db_cart)
+    log_activity(
+        session=session,
+        user_id=current_user.id,
+        action="smart_cart",
+        target="smart_cart",
+        metadata={"duration": cart_in.duration, "diet_lens": cart_in.diet_lens, "budget": cart_in.budget, "people": cart_in.people},
+        commit=False,
+    )
     session.commit()
     session.refresh(db_cart)
     return db_cart

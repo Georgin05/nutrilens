@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     
     OPENAI_API_KEY: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
+    # Simple admin protection for /admin APIs.
+    # If set, requests must include header `X-Admin-Key: <value>`.
+    ADMIN_API_KEY: Optional[str] = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

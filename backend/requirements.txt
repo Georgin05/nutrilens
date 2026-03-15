@@ -4,3 +4,7 @@ sqlmodel
 psycopg2-binary
 python-dotenv
 requests
+pydantic-settings
+PyJWT
+passlib[bcrypt]
+email-validator

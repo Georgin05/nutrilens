@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
+from datetime import datetime
 from datetime import timedelta
 
 from app.db.database import get_session
@@ -41,6 +42,11 @@ def login_user(user_in: UserLogin, session: Session = Depends(get_session)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
+
+    # Track last login for admin visibility.
+    user.last_login = datetime.utcnow()
+    session.add(user)
+    session.commit()
     
     # Generate token
     access_token = create_access_token(data={"sub": str(user.id)})

@@ -1,18 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
+import json
 from app.db.database import get_session
-from app.models.models import Product
+from app.models.models import Product, ScanLog, User
 from app.services.openfoodfacts import fetch_product_info
 from app.services.analysis import parse_ingredients, explain_additives, calculate_health_score
 from pydantic import BaseModel
 from app.services.swaps import find_healthy_swaps
 from app.models.product_schemas import ProductResponse
+from app.api.deps import get_optional_user
+from app.services.admin_activity_service import log_activity
+from typing import List, Optional
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
 class ManualScanRequest(BaseModel):
     ingredients_text: str
     product_name: str = "Custom Entry"
+
+def _pick_category(categories_tags: Optional[List[str]]) -> Optional[str]:
+    if not categories_tags:
+        return None
+    # OFF tags typically look like "en:snacks". Keep a readable identifier.
+    tag = categories_tags[0]
+    if ":" in tag:
+        tag = tag.split(":", 1)[1]
+    return tag.replace("-", "_")
 
 def _build_product_response(product: Product, additives_tags: list = None) -> ProductResponse:
     flagged = parse_ingredients(product.ingredients)
@@ -44,11 +57,35 @@ def _build_product_response(product: Product, additives_tags: list = None) -> Pr
     )
 
 @router.get("/{barcode}", response_model=ProductResponse)
-def get_product_by_barcode(barcode: str, session: Session = Depends(get_session)):
+def get_product_by_barcode(
+    barcode: str,
+    session: Session = Depends(get_session),
+    current_user: Optional[User] = Depends(get_optional_user),
+):
     # 1. Check local DB cache
     product = session.get(Product, barcode)
     if product:
-         return _build_product_response(product)
+        # If authenticated, treat this as a scan event for admin analytics.
+        if current_user:
+            categories_tags = json.loads(product.categories_json) if product.categories_json else []
+            scan = ScanLog(
+                user_id=current_user.id,
+                barcode=barcode,
+                product_name=product.name,
+                category=_pick_category(categories_tags),
+                nutrition_score=product.nutri_score,
+            )
+            session.add(scan)
+            log_activity(
+                session=session,
+                user_id=current_user.id,
+                action="scan",
+                target=product.name,
+                metadata={"barcode": barcode, "category": scan.category, "nutrition_score": scan.nutrition_score},
+                commit=False,
+            )
+            session.commit()
+        return _build_product_response(product)
 
     # 2. If not in DB, fetch from Open Food Facts API
     api_data = fetch_product_info(barcode)
@@ -56,12 +93,32 @@ def get_product_by_barcode(barcode: str, session: Session = Depends(get_session)
     if api_data:
         additives_tags = api_data.pop("additives", [])
         categories = api_data.pop("categories", [])
+        api_data["categories_json"] = json.dumps(categories, separators=(",", ":"), ensure_ascii=True)
         
         # 3. Save to local DB
         new_product = Product(**api_data)
         session.add(new_product)
         session.commit()
         session.refresh(new_product)
+
+        if current_user:
+            scan = ScanLog(
+                user_id=current_user.id,
+                barcode=barcode,
+                product_name=new_product.name,
+                category=_pick_category(categories),
+                nutrition_score=new_product.nutri_score,
+            )
+            session.add(scan)
+            log_activity(
+                session=session,
+                user_id=current_user.id,
+                action="scan",
+                target=new_product.name,
+                metadata={"barcode": barcode, "category": scan.category, "nutrition_score": scan.nutrition_score},
+                commit=False,
+            )
+            session.commit()
         
         return _build_product_response(new_product, additives_tags)
 

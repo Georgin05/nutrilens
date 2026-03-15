@@ -19,9 +19,11 @@ def seed_db():
         if not user:
             print("Creating test@example.com user...")
             user = User(
+                name="Test User",
                 email="test@example.com",
                 password_hash=get_password_hash("password"),
-                is_active=True,
+                plan="free",
+                status="active",
                 bmr=2150,
                 health_goal="Weight Loss"
             )

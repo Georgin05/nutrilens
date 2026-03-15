@@ -1,7 +1,16 @@
 from sqlmodel import SQLModel
 from app.db.database import engine
 # Important: Import models so they are registered before drop_all/create_all
-from app.models.models import User, Product, DailyLog, ShoppingList
+from app.models.models import (
+    User,
+    Product,
+    DailyLog,
+    ShoppingList,
+    ScanLog,
+    CustomLens,
+    SmartCart,
+    ActivityLog,
+)
 
 def reset_db():
     print("Dropping all tables...")

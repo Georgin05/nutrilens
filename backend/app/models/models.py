@@ -1,11 +1,17 @@
-from typing import Optional, List
+from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime
+import json
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    name: Optional[str] = None
     email: str = Field(unique=True, index=True)
     password_hash: str
+    plan: str = Field(default="free", index=True)
+    status: str = Field(default="active", index=True)  # active|banned|deleted
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    last_login: Optional[datetime] = Field(default=None, index=True)
     health_goal: Optional[str] = None
     bmr: Optional[float] = None
     weight_kg: Optional[float] = None
@@ -22,9 +28,12 @@ class User(SQLModel, table=True):
 class Product(SQLModel, table=True):
     barcode: str = Field(primary_key=True)
     name: str
+    brand: Optional[str] = None
     ingredients: Optional[str] = None
     nutri_score: Optional[str] = None
     processed_level: Optional[int] = None # Assuming NOVA score 1-4
+    # Open Food Facts category tags (stored as JSON string, e.g. ["en:snacks","en:sweets"]).
+    categories_json: Optional[str] = None
     calories: Optional[float] = None
     protein_g: Optional[float] = None
     carbs_g: Optional[float] = None
@@ -52,6 +61,8 @@ class ScanLog(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id")
     barcode: str
     product_name: str
+    category: Optional[str] = Field(default=None, index=True)
+    nutrition_score: Optional[str] = Field(default=None, index=True)
     scan_time: datetime = Field(default_factory=datetime.utcnow)
 
 class CustomLens(SQLModel, table=True):
@@ -75,3 +86,16 @@ class SmartCart(SQLModel, table=True):
     people: int
     cart_json: str # The fully generated cart (items, coverage, swaps) stored as a JSON string
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ActivityLog(SQLModel, table=True):
+    __tablename__ = "activity_logs"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", index=True)
+    action: str = Field(index=True)  # scan|consume|smart_cart|admin_message|...
+    target: str = Field(index=True)  # e.g. barcode, product_name, "smart_cart"
+    metadata_json: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+def safe_json_dumps(value) -> str:
+    # Keep JSON serialization consistent for metadata_json / categories_json.
+    return json.dumps(value, separators=(",", ":"), ensure_ascii=True)
