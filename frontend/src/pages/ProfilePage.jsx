@@ -240,7 +240,7 @@ export default function ProfilePage() {
 
                         {/* Current Lens Section */}
                         <section>
-                            <div onClick={() => navigate('/lenses')} className="bg-clay-surface shadow-[inset_2px_2px_5px_rgba(255,255,255,0.05),_4px_4px_10px_rgba(0,0,0,0.5)] border border-white/5 rounded-2xl p-5 relative overflow-hidden group cursor-pointer border-l-4 border-l-primary hover:bg-white/5 active:scale-[0.98] transition-all">
+                            <div onClick={() => navigate('/user-lens')} className="bg-clay-surface shadow-[inset_2px_2px_5px_rgba(255,255,255,0.05),_4px_4px_10px_rgba(0,0,0,0.5)] border border-white/5 rounded-2xl p-5 relative overflow-hidden group cursor-pointer border-l-4 border-l-primary hover:bg-white/5 active:scale-[0.98] transition-all">
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="space-y-1 z-10">
                                         <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">Active AI Lens</span>

@@ -8,6 +8,8 @@ from app.models.models import User, Product, DailyLog, ScanLog
 from app.api.deps import get_current_user
 from app.services.analysis import calculate_health_score, parse_ingredients
 from app.services.ai_insights import generate_weekly_insight
+from app.core.nutrition_utils import calculate_bmr, calculate_tdee
+from app.models.models import CustomLens, UserNutritionProfile
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -38,21 +40,58 @@ def get_daily_summary(
         tot_carb += (product.carbs_g or 0.0) * log.serving_size
         tot_fat += (product.fat_g or 0.0) * log.serving_size
         
-    # Mock targets (in a real app, these would come from the User model based on BMR/Goals)
-    target_calories = current_user.bmr or 2000
-    target_protein = 150
-    target_carbs = 250
-    target_fat = 70
+    # --- Dynamic Target Calculation ---
+    # 1. Base metabolism
+    if current_user.weight_kg and current_user.height_cm and current_user.age_years and current_user.gender:
+        bmr = calculate_bmr(current_user.weight_kg, current_user.height_cm, current_user.age_years, current_user.gender)
+        tdee = calculate_tdee(bmr, current_user.activity_level or 1.2)
+    else:
+        # Fallback to sensible defaults if profile is incomplete
+        bmr = current_user.bmr or 1600.0
+        tdee = bmr * 1.2
+    
+    # 2. Apply active lens if present
+    active_lens = None
+    if current_user.active_lens_id:
+        active_lens = session.get(CustomLens, current_user.active_lens_id)
+    
+    # Logic for default lens behavior if no custom lens is active
+    if not active_lens:
+        # Basic mapping from health goal to mock lens settings
+        goal = current_user.health_goal or "Maintenance"
+        if goal == "Weight Loss":
+            cal_mod = -500
+            p_ratio, c_ratio, f_ratio = 0.3, 0.4, 0.3
+        elif goal == "Muscle Gain":
+            cal_mod = 500
+            p_ratio, c_ratio, f_ratio = 0.35, 0.45, 0.2
+        else:
+            cal_mod = 0
+            p_ratio, c_ratio, f_ratio = 0.2, 0.5, 0.3
+    else:
+        cal_mod = active_lens.calorie_modifier
+        p_ratio = active_lens.protein_ratio
+        c_ratio = active_lens.carb_ratio
+        f_ratio = active_lens.fat_ratio
+
+    target_calories = tdee + cal_mod
+    
+    # 3. Calculate macro targets in grams
+    # Protein: 4 cal/g, Carbs: 4 cal/g, Fat: 9 cal/g
+    target_protein = (target_calories * p_ratio) / 4
+    target_carbs = (target_calories * c_ratio) / 4
+    target_fat = (target_calories * f_ratio) / 9
 
     return {
         "calories": round(tot_cal),
         "target_calories": round(target_calories),
         "protein": round(tot_pro),
-        "target_protein": target_protein,
+        "target_protein": round(target_protein),
         "carbs": round(tot_carb),
-        "target_carbs": target_carbs,
+        "target_carbs": round(target_carbs),
         "fat": round(tot_fat),
-        "target_fat": target_fat
+        "target_fat": round(target_fat),
+        "lens_name": active_lens.name if active_lens else "Dynamic Base"
     }
 
 @router.get("/food-logs")
@@ -243,4 +282,77 @@ def get_hydration(
     return {
         "current_l": 2.4,
         "target_l": 3.5
+    }
+
+@router.get("/nutrition-lens")
+def get_user_nutrition_lens(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    # 1. Base metabolism
+    if current_user.weight_kg and current_user.height_cm and current_user.age_years and current_user.gender:
+        bmr = calculate_bmr(current_user.weight_kg, current_user.height_cm, current_user.age_years, current_user.gender)
+        tdee = calculate_tdee(bmr, current_user.activity_level or 1.2)
+    else:
+        bmr = current_user.bmr or 1600.0
+        tdee = bmr * 1.2
+    
+    # 2. Apply active lens if present
+    active_lens = None
+    if current_user.active_lens_id:
+        active_lens = session.get(CustomLens, current_user.active_lens_id)
+    
+    if not active_lens:
+        goal = current_user.health_goal or "Maintenance"
+        if goal == "Weight Loss":
+            cal_mod = -500
+            p_ratio, c_ratio, f_ratio = 0.3, 0.4, 0.3
+            lens_name = "Fat Loss"
+            tags = ["Calorie Deficit", "Moderate Protein"]
+        elif goal == "Muscle Gain":
+            cal_mod = 500
+            p_ratio, c_ratio, f_ratio = 0.35, 0.45, 0.2
+            lens_name = "Muscle Build"
+            tags = ["Calorie Surplus", "High Protein"]
+        else:
+            cal_mod = 0
+            p_ratio, c_ratio, f_ratio = 0.2, 0.5, 0.3
+            lens_name = "Maintenance"
+            tags = ["Balanced", "Natural Health"]
+    else:
+        cal_mod = active_lens.calorie_modifier
+        p_ratio = active_lens.protein_ratio
+        c_ratio = active_lens.carb_ratio
+        f_ratio = active_lens.fat_ratio
+        lens_name = active_lens.name
+        # Simple tags based on ratios
+        tags = []
+        if cal_mod > 0: tags.append("Calorie Surplus")
+        elif cal_mod < 0: tags.append("Calorie Deficit")
+        if p_ratio > 0.3: tags.append("High Protein")
+        if c_ratio < 0.3: tags.append("Low Carb")
+
+    target_calories = tdee + cal_mod
+    target_protein = (target_calories * p_ratio) / 4
+    target_carbs = (target_calories * c_ratio) / 4
+    target_fat = (target_calories * f_ratio) / 9
+
+    return {
+        "user_details": {
+            "age": current_user.age_years,
+            "weight": current_user.weight_kg,
+            "height": current_user.height_cm,
+            "gender": current_user.gender
+        },
+        "bmr": round(bmr),
+        "active_lens": {
+            "name": lens_name.upper(),
+            "tags": tags
+        },
+        "target_nutrition": {
+            "calories": round(target_calories),
+            "protein": round(target_protein),
+            "carbs": round(target_carbs),
+            "fat": round(target_fat)
+        }
     }

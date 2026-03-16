@@ -18,6 +18,15 @@ class User(SQLModel, table=True):
     conditions: Optional[str] = None
     medications: Optional[str] = None
     medical_history: Optional[str] = None
+    activity_level: Optional[float] = Field(default=1.2) # Multiplier: 1.2 (Sedentary) to 1.9 (Very Active)
+    active_lens_id: Optional[int] = Field(default=None, foreign_key="custom_lenses.id")
+
+class UserNutritionProfile(SQLModel, table=True):
+    __tablename__ = "user_nutrition_profile"
+    user_id: int = Field(foreign_key="user.id", primary_key=True)
+    bmr: float
+    tdee: float
+    last_calculated: datetime = Field(default_factory=datetime.utcnow)
 
 class Product(SQLModel, table=True):
     barcode: str = Field(primary_key=True)
@@ -60,9 +69,11 @@ class CustomLens(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id")
     name: str
     theme_color: str
-    calorie_limit: Optional[float] = None
-    min_protein_g: Optional[float] = None
-    max_sugar_g: Optional[float] = None
+    calorie_modifier: float = Field(default=0.0) # e.g. -400, +400
+    protein_ratio: float = Field(default=0.3)
+    carb_ratio: float = Field(default=0.4)
+    fat_ratio: float = Field(default=0.3)
+    sugar_limit_g: Optional[float] = None
     flagged_ingredients_json: Optional[str] = None # Store as JSON list string
 
 class SmartCart(SQLModel, table=True):

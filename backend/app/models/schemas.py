@@ -28,7 +28,16 @@ class UserResponse(BaseModel):
     conditions: Optional[str] = None
     medications: Optional[str] = None
     medical_history: Optional[str] = None
+    activity_level: Optional[float] = None
     
+    model_config = ConfigDict(from_attributes=True)
+
+class UserNutritionProfileResponse(BaseModel):
+    user_id: int
+    bmr: float
+    tdee: float
+    last_calculated: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):
@@ -47,6 +56,7 @@ class UserProfileUpdate(BaseModel):
     conditions: Optional[str] = None
     medications: Optional[str] = None
     medical_history: Optional[str] = None
+    activity_level: Optional[float] = None
 
 # ---- Phase 3 Schemas ----
 
@@ -100,9 +110,11 @@ class ShoppingListResponse(BaseModel):
 class CustomLensCreate(BaseModel):
     name: str
     theme_color: str
-    calorie_limit: Optional[float] = None
-    min_protein_g: Optional[float] = None
-    max_sugar_g: Optional[float] = None
+    calorie_modifier: float = 0.0
+    protein_ratio: float = 0.3
+    carb_ratio: float = 0.4
+    fat_ratio: float = 0.3
+    sugar_limit_g: Optional[float] = None
     flagged_ingredients: Optional[List[str]] = None
 
 class CustomLensResponse(BaseModel):
@@ -110,9 +122,11 @@ class CustomLensResponse(BaseModel):
     user_id: int
     name: str
     theme_color: str
-    calorie_limit: Optional[float] = None
-    min_protein_g: Optional[float] = None
-    max_sugar_g: Optional[float] = None
+    calorie_modifier: float
+    protein_ratio: float
+    carb_ratio: float
+    fat_ratio: float
+    sugar_limit_g: Optional[float] = None
     flagged_ingredients: Optional[List[str]] = None
     
     model_config = ConfigDict(from_attributes=True)

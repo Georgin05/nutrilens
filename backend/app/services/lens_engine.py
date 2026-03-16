@@ -17,5 +17,5 @@ def get_daily_target(nutrition_profile: UserNutritionProfile, lens: CustomLens):
         "protein_g": macros["protein_g"],
         "carbs_g": macros["carbs_g"],
         "fat_g": macros["fat_g"],
-        "sugar_limit_g": lens.sugar_limit
+        "sugar_limit_g": lens.sugar_limit_g
     }

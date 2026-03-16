@@ -21,7 +21,10 @@ import {
 
 import DashboardPage from './pages/DashboardPage';
 import ScanningPage from './pages/ScanningPage';
+import LiveScannerPage from './pages/LiveScannerPage';
+import LogsPage from './pages/LogsPage';
 import ProfilePage from './pages/ProfilePage';
+import UserNutritionLensPage from './pages/UserNutritionLensPage';
 import LensGalleryPage from './pages/LensGalleryPage';
 import LensWizardLimits from './pages/LensWizardLimits';
 import LensWizardGuard from './pages/LensWizardGuard';
@@ -30,8 +33,6 @@ import SmartCartHub from './pages/SmartCartHub';
 import SmartCartSetup from './pages/SmartCartSetup';
 import SmartCartDashboard from './pages/SmartCartDashboard';
 import MainLayout from './components/MainLayout';
-import LiveScannerPage from './pages/LiveScannerPage';
-import LogsPage from './pages/LogsPage';
 
 // --- Global Theme & Utilities ---
 const useTheme = () => {
@@ -101,6 +102,14 @@ export default function App() {
           }
         />
         <Route
+          path="/live-scan"
+          element={
+            <MainLayout>
+              <LiveScannerPage />
+            </MainLayout>
+          }
+        />
+        <Route
           path="/logs"
           element={
             <MainLayout>
@@ -113,6 +122,14 @@ export default function App() {
           element={
             <MainLayout>
               <ProfilePage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/user-lens"
+          element={
+            <MainLayout>
+              <UserNutritionLensPage />
             </MainLayout>
           }
         />
@@ -142,7 +159,6 @@ export default function App() {
         />
         <Route path="/smart-cart/setup" element={<SmartCartSetup />} />
         <Route path="/smart-cart/dashboard" element={<SmartCartDashboard />} />
-        <Route path="/live-scan" element={<LiveScannerPage />} />
       </Routes>
     </div>
   );
