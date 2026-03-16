@@ -30,6 +30,8 @@ import SmartCartHub from './pages/SmartCartHub';
 import SmartCartSetup from './pages/SmartCartSetup';
 import SmartCartDashboard from './pages/SmartCartDashboard';
 import MainLayout from './components/MainLayout';
+import LiveScannerPage from './pages/LiveScannerPage';
+import LogsPage from './pages/LogsPage';
 
 // --- Global Theme & Utilities ---
 const useTheme = () => {
@@ -99,6 +101,14 @@ export default function App() {
           }
         />
         <Route
+          path="/logs"
+          element={
+            <MainLayout>
+              <LogsPage />
+            </MainLayout>
+          }
+        />
+        <Route
           path="/profile"
           element={
             <MainLayout>
@@ -132,6 +142,7 @@ export default function App() {
         />
         <Route path="/smart-cart/setup" element={<SmartCartSetup />} />
         <Route path="/smart-cart/dashboard" element={<SmartCartDashboard />} />
+        <Route path="/live-scan" element={<LiveScannerPage />} />
       </Routes>
     </div>
   );

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import api from '../../services/api';
 
 export default function FoodLogList() {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const fetchLogs = async () => {
@@ -24,20 +25,26 @@ export default function FoodLogList() {
     }
 
     return (
-        <div className="clay-card-light dark:clay-card-dark rounded-clay p-6 md:p-8 flex flex-col w-full drift" style={{ animationDelay: '1s' }}>
+        <Fragment>
+        <div className="clay-card-dark clay-card-glow rounded-[2rem] p-6 md:p-8 flex flex-col w-full drift" style={{ animationDelay: '1s' }}>
             <div className="flex justify-between items-center mb-6">
                 <h3 className="font-black text-xl">Today's Food Log</h3>
-                <button className="text-primary text-sm font-bold tracking-widest uppercase hover:underline">View All</button>
+                <button 
+                  onClick={() => setShowModal(true)}
+                  className="text-primary text-[10px] font-black tracking-widest uppercase hover:underline"
+                >
+                    View All
+                </button>
             </div>
 
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="text-[10px] text-slate-500 font-black tracking-widest uppercase border-b border-slate-200 dark:border-slate-800">
-                            <th className="pb-4 font-black">Meal Item</th>
-                            <th className="pb-4 font-black">Portion</th>
-                            <th className="pb-4 font-black">Macros (P/C/F)</th>
-                            <th className="pb-4 font-black text-right">Calories</th>
+                        <tr className="text-[10px] text-slate-500 font-black tracking-widest uppercase border-b border-white/5">
+                            <th className="pb-4 font-black">MEAL ITEM</th>
+                            <th className="pb-4 font-black">PORTION</th>
+                            <th className="pb-4 font-black">MACROS (P/C/F)</th>
+                            <th className="pb-4 font-black text-right">CALORIES</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,5 +96,62 @@ export default function FoodLogList() {
                 </table>
             </div>
         </div>
+
+        {/* View All Modal */}
+        {showModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                <div className="clay-card w-full max-w-2xl max-h-[85vh] flex flex-col relative rounded-[2.5rem] overflow-hidden border border-primary/30 shadow-primary-glow bg-background-dark/95">
+                    <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                        <div>
+                            <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                                <span className="material-symbols-outlined text-primary">history</span>
+                                Daily Consumption
+                            </h2>
+                            <p className="text-xs text-slate-400 font-medium">Complete record of your logged meals</p>
+                        </div>
+                        <button 
+                            onClick={() => setShowModal(false)}
+                            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/5 text-slate-400 hover:text-white transition-all bg-white/5 clay-btn"
+                        >
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-4">
+                        {logs.length > 0 ? (
+                            logs.map((log, index) => (
+                                <div key={index} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/5 border border-white/5 hover:border-primary/20 hover:bg-white/10 transition-all group">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center flex-shrink-0 clay-thumb">
+                                            <span className="material-symbols-outlined text-primary/80 text-3xl">restaurant</span>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-white text-base group-hover:text-primary transition-colors">{log.food}</h4>
+                                            <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-tighter">{log.meal_type || 'Snack'} • {log.time}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right flex flex-col items-end">
+                                        <span className="text-lg font-black text-white">
+                                            {log.calories} <span className="text-[10px] text-slate-500 uppercase">kcal</span>
+                                        </span>
+                                        <div className="flex gap-2 mt-2">
+                                            <span className="text-[9px] font-black text-primary px-2 py-0.5 rounded bg-primary/10 border border-primary/10">{log.macros?.p || 0}P</span>
+                                            <span className="text-[9px] font-black text-amber-500 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/10">{log.macros?.c || 0}C</span>
+                                            <span className="text-[9px] font-black text-teal-400 px-2 py-0.5 rounded bg-teal-400/10 border border-teal-400/10">{log.macros?.f || 0}F</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-20 flex flex-col items-center justify-center text-center">
+                                <span className="material-symbols-outlined text-7xl text-slate-700 mb-4 animate-pulse">restaurant</span>
+                                <h3 className="text-xl font-black text-slate-300">No Food Logged</h3>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )}
+        </Fragment>
     );
 }

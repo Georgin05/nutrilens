@@ -24,7 +24,11 @@ def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
     
     # Create new user
     hashed_password = get_password_hash(user_in.password)
-    new_user = User(email=user_in.email, password_hash=hashed_password)
+    new_user = User(
+        email=user_in.email, 
+        password_hash=hashed_password,
+        health_goal=user_in.health_goal
+    )
     session.add(new_user)
     session.commit()
     session.refresh(new_user)

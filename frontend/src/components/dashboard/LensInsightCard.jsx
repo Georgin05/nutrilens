@@ -26,24 +26,29 @@ export default function LensInsightCard() {
     if (!data) return null;
 
     return (
-        <div className="clay-card-light dark:clay-card-dark rounded-clay p-6 md:p-8 flex flex-col w-full border-[1.5px] border-amber-500/50 shadow-amber drift" style={{ animationDelay: '1.5s' }}>
-            <div className="flex items-center gap-3 mb-6">
-                <span className="material-symbols-outlined text-amber-500 font-black">bolt</span>
-                <h3 className="font-black text-xl tracking-tight">AI Insights</h3>
+        <div className="clay-card-dark clay-card-glow rounded-[1.5rem] p-5 flex flex-col w-full drift shadow-clay border-emerald-500/10" style={{ animationDelay: '1.5s' }}>
+            <div className="flex items-center gap-2 mb-4">
+                <span className="material-symbols-outlined text-amber-500 text-lg font-black">bolt</span>
+                <h3 className="font-black text-white text-base uppercase tracking-tight">AI Insights</h3>
             </div>
 
-            <div className="flex-1 space-y-4 mb-8 overflow-y-auto custom-scrollbar">
-                {data.insights.map((insight, idx) => (
-                    <div key={idx} className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-5 clay-thumb">
-                        <h4 className="font-black text-sm mb-2">{insight.title}</h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                            {insight.description}
-                        </p>
-                    </div>
-                ))}
+            <div className="flex-1 space-y-3 mb-4 overflow-y-auto custom-scrollbar">
+                <div className="bg-slate-900/40 rounded-xl p-4 clay-thumb border border-white/5">
+                    <h4 className="font-black text-[10px] mb-1.5 text-white tracking-tight uppercase opacity-80">General Health Active</h4>
+                    <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                        {data.insight || "Weight and muscle mass building target for your activity level."}
+                    </p>
+                </div>
+
+                <div className="bg-slate-900/40 rounded-xl p-4 clay-thumb border border-white/5">
+                    <h4 className="font-black text-[10px] mb-1.5 text-white tracking-tight uppercase opacity-80">Action Plan</h4>
+                    <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                        {data.recommendation || "Add high protein meals like eggs or chicken for your next meal."}
+                    </p>
+                </div>
             </div>
 
-            <button className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-4 rounded-full transition-colors shadow-amber tracking-wide">
+            <button className="w-full bg-[#f59e0b] hover:bg-amber-500 text-slate-900 py-3 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-amber shadow-clay">
                 Full Analysis
             </button>
         </div>

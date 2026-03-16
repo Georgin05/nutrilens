@@ -6,10 +6,10 @@ export default function DietCalendar() {
     const [historyData, setHistoryData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Generate a quick array of the last 5 days
+    // Generate a quick array of the last 7 days
     const days = [];
     const today = new Date();
-    for (let i = 4; i >= 0; i--) {
+    for (let i = 4; i >= -2; i--) {
         const d = new Date(today);
         d.setDate(today.getDate() - i);
         days.push({
@@ -17,7 +17,7 @@ export default function DietCalendar() {
             dayNum: d.getDate(),
             dayName: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
             // Mock status for now to match UI (green/orange)
-            status: i % 3 === 0 ? 'Deviation' : 'On Target'
+            status: i === 1 ? 'Deviation' : (i > 1 ? 'On Target' : 'None')
         });
     }
 
@@ -37,33 +37,36 @@ export default function DietCalendar() {
     }, [selectedDate]);
 
     return (
-        <div className="clay-card-light dark:clay-card-dark rounded-clay p-6 md:p-8 flex flex-col w-full drift" style={{ animationDelay: '0.2s' }}>
+        <div className="clay-card-dark clay-card-glow rounded-[1.5rem] p-5 flex flex-col w-full drift shadow-clay border-emerald-500/10" style={{ animationDelay: '0.2s' }}>
             <div className="flex justify-between items-center mb-6">
-                <h3 className="font-black text-xl tracking-tight">History</h3>
+                <h3 className="font-black text-base tracking-tight text-white">History</h3>
                 <div className="flex gap-2">
-                    <button className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                        <span className="material-symbols-outlined text-sm">chevron_left</span>
+                    <button className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/5">
+                        <span className="material-symbols-outlined text-[12px] font-black pointer-events-none">chevron_left</span>
                     </button>
-                    <button className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                    <button className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/5">
+                        <span className="material-symbols-outlined text-[12px] font-black pointer-events-none">chevron_right</span>
                     </button>
                 </div>
             </div>
 
-            <div className="flex justify-between items-center mb-6 px-2">
+            <div className="flex justify-between items-center mb-6 px-1 gap-1.5">
                 {days.map((dayObj, idx) => {
-                    const isSelected = dayObj.date === selectedDate;
-                    const statusColor = dayObj.status === 'On Target' ? 'bg-primary' : 'bg-amber-500';
-                    const selectedStyle = isSelected ? `${statusColor} text-background-dark shadow-lg` : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800';
-
+                    const isToday = dayObj.date === today.toISOString().split('T')[0];
+                    let blockStyle = "bg-slate-900 text-slate-500 border border-white/5";
+                    if (dayObj.status === 'On Target') blockStyle = "bg-primary text-background-dark shadow-primary-glow";
+                    if (dayObj.status === 'Deviation') blockStyle = "bg-amber-500 text-background-dark shadow-amber";
+                    
                     return (
                         <div 
                             key={idx} 
-                            className="flex flex-col items-center gap-2 cursor-pointer"
+                            className="flex-1 flex flex-col items-center gap-2 cursor-pointer"
                             onClick={() => setSelectedDate(dayObj.date)}
                         >
-                            <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">{dayObj.dayName}</span>
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black transition-all duration-300 ${selectedStyle}`}>
+                            <span className={`text-[9px] font-black uppercase tracking-tighter ${isToday ? 'text-primary' : 'text-slate-500'}`}>
+                                {dayObj.dayName}
+                            </span>
+                            <div className={`w-full aspect-square max-w-[32px] rounded-lg flex items-center justify-center text-[11px] font-black transition-all duration-300 ${blockStyle}`}>
                                 {dayObj.dayNum}
                             </div>
                         </div>
@@ -71,22 +74,23 @@ export default function DietCalendar() {
                 })}
             </div>
 
-            <div className="border-t border-slate-200 dark:border-slate-800 pt-6 pb-2">
-                {loading ? (
-                     <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse w-3/4"></div>
-                ) : historyData ? (
-                    <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
-                        <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full bg-primary shadow-primary-glow"></span>
-                            <span>On Target</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-amber"></span>
-                            <span>Deviation</span>
-                        </div>
+            <div className="border-t border-white/5 pt-4 flex justify-between items-center">
+                <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary shadow-primary-glow"></span>
+                        <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500">On Target</span>
                     </div>
-                ) : (
-                    <p className="text-xs text-slate-500">No data for this date.</p>
+                    <div className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-amber"></span>
+                        <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500">Deviation</span>
+                    </div>
+                </div>
+                
+                {!loading && (
+                    <div className="text-right">
+                        <p className="text-[11px] font-black leading-tight text-white">{historyData?.calories || 0} kcal</p>
+                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-tighter">{historyData?.meals?.length || 0} meals</p>
+                    </div>
                 )}
             </div>
         </div>

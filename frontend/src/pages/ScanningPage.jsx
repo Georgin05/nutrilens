@@ -17,7 +17,6 @@ export default function ScanningPage() {
     const [manualText, setManualText] = useState('');
     const [manualName, setManualName] = useState('');
     const [scannerError, setScannerError] = useState(null);
-    const [isScanning, setIsScanning] = useState(false);
 
     // --- Demo Sandbox Presets ---
     const PRESET_PRODUCTS = [
@@ -53,16 +52,9 @@ export default function ScanningPage() {
         }
     };
 
-    // --- Real Camera Scanner (Placeholder for Dev Server) ---
-    const handleStartCamera = () => {
-        setIsScanning(true);
-        // On a local HTTP dev server, camera permissions often fail.
-        // We simulate a fallback to the manual/sandbox workflow by turning off the scanner
-        // and popping up a notice.
-        setTimeout(() => {
-            setIsScanning(false);
-            setScannerError("Camera access requires HTTPS. Please use the Dev Sandbox or Manual Entry in this development environment.");
-        }, 1500);
+    // Navigation helper
+    const handleStartLiveScanner = () => {
+        navigate('/live-scan');
     };
 
     // --- Action Handlers ---
@@ -81,33 +73,29 @@ export default function ScanningPage() {
     return (
         <div className="font-display bg-bg-dark text-slate-100 antialiased overflow-hidden min-h-full h-full">
             <div className="relative flex h-full w-full flex-col overflow-hidden">
-                <div className="absolute inset-0 z-0 bg-black">
-                    <div id="reader" className="w-full h-full object-cover opacity-80 z-0 absolute inset-0"></div>
-
-                    {/* Fallback Background if scanner is not explicitly scanning */}
-                    {!isScanning && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10 flex-col">
-                            <span className="material-symbols-outlined text-6xl text-emerald-clay mb-4">qr_code_scanner</span>
-                            <button onClick={() => setIsScanning(true)} className="bg-emerald-clay text-bg-dark font-bold px-6 py-3 rounded-full hover:bg-emerald-400 transition mb-4 shadow-lg shadow-emerald-clay/30">
-                                Start Live Camera
-                            </button>
-                            <p className="text-sm text-slate-400 max-w-sm text-center">To use your local device camera, please allow camera permissions when prompted.</p>
-                        </div>
-                    )}
-
-                    {!scanned && !loading && !error && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                            <div className="relative w-72 h-72 md:w-[450px] md:h-[450px]">
-                                <div className="absolute top-0 left-0 w-12 h-12 border-t-8 border-l-8 border-emerald-clay rounded-tl-3xl opacity-80 pointer-events-none"></div>
-                                <div className="absolute top-0 right-0 w-12 h-12 border-t-8 border-r-8 border-emerald-clay rounded-tr-3xl opacity-80 pointer-events-none"></div>
-                                <div className="absolute bottom-0 left-0 w-12 h-12 border-b-8 border-l-8 border-emerald-clay rounded-bl-3xl opacity-80 pointer-events-none"></div>
-                                <div className="absolute bottom-0 right-0 w-12 h-12 border-b-8 border-r-8 border-emerald-clay rounded-br-3xl opacity-80 pointer-events-none"></div>
-                                {isScanning && <div className="scanner-line"></div>}
+                    {/* Hero Dashboard for Scanner */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#050505] z-10 flex-col px-4">
+                        <div className="w-full max-w-4xl text-center">
+                            <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                                <span className="material-symbols-outlined text-[100px] text-emerald-clay mb-6 drop-shadow-[0_0_20px_rgba(20,184,166,0.3)]">qr_code_scanner</span>
+                                <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">AI Molecular <span className="text-emerald-clay">Scanner</span></h1>
+                                <p className="text-slate-400 text-xl md:text-2xl font-medium max-w-2xl mx-auto leading-relaxed">
+                                    Analyze nutritional compounds, additives, and bio-markers in real-time using high-precision computer vision.
+                                </p>
                             </div>
+                            
+                            <button 
+                                onClick={handleStartLiveScanner} 
+                                className="bg-gradient-to-br from-emerald-400 to-emerald-600 text-bg-dark font-black px-12 py-5 rounded-[2rem] hover:brightness-110 transition-all mb-6 shadow-[0_10px_40px_rgba(16,185,129,0.4)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.5)] active:scale-95 active:shadow-none duration-150 transform flex items-center gap-3 mx-auto group border border-emerald-300/50"
+                            >
+                                <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform duration-300">fit_screen</span> 
+                                <span className="text-xl tracking-[0.1em] uppercase">Start Live Camera</span>
+                            </button>
                         </div>
-                    )}
+                    </div>
+
+
                     <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/70 pointer-events-none z-10"></div>
-                </div>
 
                 <header className="relative z-20 flex items-center justify-between px-8 py-6">
                     <div className="flex items-center gap-12">
@@ -258,7 +246,7 @@ export default function ScanningPage() {
                             )}
                             <div className="clay-chip px-8 py-3">
                                 <p className="text-slate-200 text-sm font-bold">
-                                    {isScanning ? "Align barcode to analyze nutritional chemistry" : "Waiting for camera..."}
+                                    Position product barcode for high-fidelity molecular analysis
                                 </p>
                             </div>
                         </div>

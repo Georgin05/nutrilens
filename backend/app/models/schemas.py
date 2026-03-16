@@ -5,6 +5,7 @@ from datetime import datetime
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+    health_goal: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr

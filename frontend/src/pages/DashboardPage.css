@@ -1,7 +1,7 @@
 /* Root variables specific to the Dashboard */
 :root {
-    --dashboard-bg-light: #f0f4f3;
-    --dashboard-bg-dark: #0f1713;
+    --dashboard-bg-light: #f6f8f7;
+    --dashboard-bg-dark: #102219;
     --clay-primary: #13ec80;
     --clay-dark: #1e293b;
 }
@@ -39,7 +39,15 @@ body.dashboard-body {
     grid-column: span 12 / span 12;
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1024px) {
+    .lg\:col-span-8 {
+        grid-column: span 8 / span 8 !important;
+    }
+
+    .lg\:col-span-4 {
+        grid-column: span 4 / span 4 !important;
+    }
+
     .col-span-7 {
         grid-column: span 7 / span 7;
     }
@@ -54,41 +62,35 @@ body.dashboard-body {
 }
 
 @media (min-width: 1536px) {
-    .hidden.2xl\:flex {
+    .flex-2xl {
         display: flex;
     }
 }
 
 @media (min-width: 1280px) {
-    .hidden.xl\:flex {
+    .flex-xl {
         display: flex;
     }
 }
 
 .clay-card-light {
     background-color: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(19, 236, 128, 0.3);
-    /* Emerald Edge */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(19, 236, 128, 0.1);
     box-shadow:
         0 8px 32px 0 rgba(0, 0, 0, 0.05),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.8),
-        0 0 15px rgba(19, 236, 128, 0.15);
-    /* Soft glowing aura */
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
 }
 
 .dark .clay-card-dark {
-    background-color: rgba(15, 23, 19, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(19, 236, 128, 0.5);
-    /* Glowing Emerald Edge */
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow:
-        0 8px 32px 0 rgba(0, 0, 0, 0.3),
-        inset 0 0 0 1px rgba(19, 236, 128, 0.2),
-        0 0 25px rgba(19, 236, 128, 0.25);
-    /* Stronger glowing aura */
+        0 8px 32px 0 rgba(0, 0, 0, 0.4),
+        inset 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Weightless Drift Animation (High-Performance for Mobile) */
@@ -138,15 +140,37 @@ body.dashboard-body {
 
 /* Custom Gradients and Glows mapped from arbitrary tailwind classes */
 .shadow-primary-glow {
-    box-shadow: 0 0 8px rgba(19, 236, 128, 0.6);
+    box-shadow: 0 0 8px rgba(19, 236, 128, 0.5);
 }
 
 .shadow-teal-glow {
-    box-shadow: 0 0 8px rgba(20, 184, 166, 0.6);
+    box-shadow: 0 0 8px rgba(20, 184, 166, 0.5);
 }
 
 .shadow-amber {
-    box-shadow: 0 4px 14px 0 rgba(251, 191, 36, 0.3);
+    box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.5);
+}
+
+.shadow-clay {
+    box-shadow: inset 2px 2px 4px rgba(255,255,255,0.1), 8px 8px 16px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(0,0,0,0.2);
+}
+
+.shadow-clay-primary {
+    box-shadow: inset 4px 4px 8px rgba(255,255,255,0.3), 10px 10px 20px rgba(19, 236, 128, 0.2);
+}
+
+.shadow-clay-inner {
+    box-shadow: inset 6px 6px 12px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(255,255,255,0.05);
+}
+
+.clay-card-glow {
+    border: 1px solid rgba(19, 236, 128, 0.4) !important;
+    box-shadow: 0 0 15px rgba(19, 236, 128, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.clay-card-glow:hover {
+    border: 1px solid rgba(19, 236, 128, 0.6) !important;
+    box-shadow: 0 0 25px rgba(19, 236, 128, 0.25), inset 0 0 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Colors specifically used in dashboard HTML */
