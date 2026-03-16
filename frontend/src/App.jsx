@@ -32,6 +32,8 @@ import LensWizardFinal from './pages/LensWizardFinal';
 import SmartCartHub from './pages/SmartCartHub';
 import SmartCartSetup from './pages/SmartCartSetup';
 import SmartCartDashboard from './pages/SmartCartDashboard';
+import MealCartPage from './pages/MealCartPage';
+import MealCartSetup from './pages/MealCartSetup';
 import MainLayout from './components/MainLayout';
 
 // --- Global Theme & Utilities ---
@@ -159,6 +161,15 @@ export default function App() {
         />
         <Route path="/smart-cart/setup" element={<SmartCartSetup />} />
         <Route path="/smart-cart/dashboard" element={<SmartCartDashboard />} />
+        <Route 
+          path="/meal-cart" 
+          element={
+            <MainLayout>
+              <MealCartPage />
+            </MainLayout>
+          } 
+        />
+        <Route path="/meal-cart-setup" element={<MealCartSetup />} />
       </Routes>
     </div>
   );

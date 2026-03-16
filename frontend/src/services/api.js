@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const PC_IP = "localhost"; // Set globally to allow phone connection over Wi-Fi
+const PC_IP = "127.0.0.1"; // Use IP to avoid localhost resolution issues
 const API_URL = `http://${PC_IP}:8000`; // Direct connection to FastAPI backend
 
 const api = {
@@ -222,6 +222,48 @@ const api = {
     getUserNutritionLens: async () => {
         const token = localStorage.getItem('access_token');
         const response = await axios.get(`${API_URL}/dashboard/nutrition-lens`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    // --- Meal Cart Endpoints ---
+    getMealPlan: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/meal-cart/plan`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getMealGroceries: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/meal-cart/groceries`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    setupMealPlan: async (config) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/meal-cart/setup`, config, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    // --- Generic Helpers ---
+    get: async (endpoint) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}${endpoint}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    post: async (endpoint, data) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}${endpoint}`, data, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;

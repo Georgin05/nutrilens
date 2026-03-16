@@ -86,3 +86,24 @@ class SmartCart(SQLModel, table=True):
     people: int
     cart_json: str # The fully generated cart (items, coverage, swaps) stored as a JSON string
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class MealTemplate(SQLModel, table=True):
+    __tablename__ = "meal_templates"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    meal_type: str # 'Breakfast', 'Lunch', 'Dinner', 'Snack'
+    food_items_json: str # JSON list of items
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+    image_url: Optional[str] = None
+
+class MealPlan(SQLModel, table=True):
+    __tablename__ = "meal_plans"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    day_of_week: str # 'Monday', 'Tuesday', etc.
+    meal_type: str # 'Breakfast', 'Lunch', 'Dinner', 'Snack'
+    meal_template_id: int = Field(foreign_key="meal_templates.id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
