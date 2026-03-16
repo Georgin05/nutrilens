@@ -1,0 +1,182 @@
+.logs-page {
+    background-color: #0d1a14;
+    min-height: 100vh;
+    padding: 2rem 1.5rem 8rem 1.5rem;
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+}
+
+.logs-header {
+    margin-bottom: 2.5rem;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.page-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    color: #f8fafc;
+}
+
+.calendar-btn {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #13ec80;
+}
+
+.date-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #13ec80;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.meal-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.meal-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 1.5rem;
+    min-height: 120px;
+}
+
+.meal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.meal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.meal-icon {
+    color: #13ec80;
+    font-size: 1.5rem;
+}
+
+.meal-title h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.add-btn {
+    background: #13ec80;
+    color: #0d1a14;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    box-shadow: 0 4px 12px rgba(19, 236, 128, 0.3);
+}
+
+.meal-logs {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.log-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.log-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #f1f5f9;
+}
+
+.log-details {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.empty-logs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+    color: #475569;
+}
+
+.empty-logs .material-symbols-outlined {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.3;
+}
+
+.empty-logs p {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.logs-footer {
+    position: fixed;
+    bottom: 2rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.log-day-btn {
+    width: 100%;
+    max-width: 600px;
+    background: #13ec80;
+    color: #0d1a14;
+    padding: 1.25rem;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 8px 24px rgba(19, 236, 128, 0.4);
+}
+
+.footer-summary {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #13ec80;
+}
