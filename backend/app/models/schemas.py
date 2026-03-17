@@ -90,17 +90,27 @@ class DailySummaryResponse(BaseModel):
 
 class ShoppingListCreate(BaseModel):
     item_name: str
+    category: str = "Other"
+    quantity: float = 1.0
+    unit: str = "unit"
     is_healthy_swap: bool = False
+    price: float = 0.0
 
 class ShoppingListUpdate(BaseModel):
     item_name: Optional[str] = None
     status: Optional[str] = None
+    quantity: Optional[float] = None
+    category: Optional[str] = None
 
 class ShoppingListResponse(BaseModel):
     id: int
     user_id: int
     item_name: str
+    category: str
+    quantity: float
+    unit: str
     is_healthy_swap: bool
+    price: float
     status: str
     
     model_config = ConfigDict(from_attributes=True)
@@ -148,5 +158,35 @@ class SmartCartResponse(BaseModel):
     people: int
     cart_json: str
     created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+# ---- Phase 7 Schemas (Meals) ----
+
+class MealTemplateResponse(BaseModel):
+    id: int
+    name: str
+    meal_type: str
+    food_items_json: str
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+    image_url: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class MealPlanCreate(BaseModel):
+    day_of_week: str
+    meal_type: str
+    meal_template_id: int
+
+class MealPlanResponse(BaseModel):
+    id: int
+    user_id: int
+    day_of_week: str
+    meal_type: str
+    meal_template_id: int
+    created_at: datetime
+    meal_template: Optional[MealTemplateResponse] = None
     
     model_config = ConfigDict(from_attributes=True)

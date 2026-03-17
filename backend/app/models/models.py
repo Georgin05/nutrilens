@@ -43,8 +43,14 @@ class DailyLog(SQLModel, table=True):
     __tablename__ = "daily_logs"
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
-    barcode: str = Field(foreign_key="product.barcode")
-    serving_size: float
+    barcode: Optional[str] = Field(default=None, foreign_key="product.barcode")
+    product_name: Optional[str] = None # For custom logs or meal templates
+    serving_size: float = Field(default=1.0)
+    calories: float = Field(default=0.0)
+    protein_g: float = Field(default=0.0)
+    carbs_g: float = Field(default=0.0)
+    fat_g: float = Field(default=0.0)
+    meal_type: Optional[str] = None # 'Breakfast', 'Lunch', etc.
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 class ShoppingList(SQLModel, table=True):
@@ -52,7 +58,11 @@ class ShoppingList(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
     item_name: str
+    category: str = Field(default="Other") # e.g. "Vegetables", "Protein", "Carbs", "Healthy Fats"
+    quantity: float = Field(default=1.0)
+    unit: str = Field(default="unit")
     is_healthy_swap: bool = Field(default=False)
+    price: Optional[float] = Field(default=0.0)
     status: str = Field(default="pending") # e.g. "pending", "bought"
 
 class ScanLog(SQLModel, table=True):
@@ -98,6 +108,8 @@ class MealTemplate(SQLModel, table=True):
     carbs_g: float
     fat_g: float
     image_url: Optional[str] = None
+    
+    plans: List["MealPlan"] = Relationship(back_populates="meal_template")
 
 class MealPlan(SQLModel, table=True):
     __tablename__ = "meal_plans"
@@ -107,3 +119,5 @@ class MealPlan(SQLModel, table=True):
     meal_type: str # 'Breakfast', 'Lunch', 'Dinner', 'Snack'
     meal_template_id: int = Field(foreign_key="meal_templates.id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    meal_template: Optional[MealTemplate] = Relationship(back_populates="plans")

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const PC_IP = "127.0.0.1"; // Use IP to avoid localhost resolution issues
+const PC_IP = "localhost"; // Use localhost to match browser origin
 const API_URL = `http://${PC_IP}:8000`; // Direct connection to FastAPI backend
 
 const api = {
@@ -66,6 +66,11 @@ const api = {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
+    },
+
+    getRecentLogs: async () => {
+        const data = await api.getTodaysLogs();
+        return data.logs || [];
     },
 
     getWeeklyAnalytics: async () => {
@@ -144,6 +149,31 @@ const api = {
     getLatestSmartCart: async () => {
         const token = localStorage.getItem('access_token');
         const response = await axios.get(`${API_URL}/smart-cart/latest`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    // --- Grocery List Endpoints ---
+    generateGroceryList: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/smart-cart/generate-from-plan`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getGroceryList: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/smart-cart/list`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    updateGroceryItemStatus: async (itemId, status) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.patch(`${API_URL}/smart-cart/item/${itemId}?status=${status}`, {}, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
@@ -230,7 +260,7 @@ const api = {
     // --- Meal Cart Endpoints ---
     getMealPlan: async () => {
         const token = localStorage.getItem('access_token');
-        const response = await axios.get(`${API_URL}/meal-cart/plan`, {
+        const response = await axios.get(`${API_URL}/meals/weekly`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
@@ -238,7 +268,7 @@ const api = {
 
     getMealGroceries: async () => {
         const token = localStorage.getItem('access_token');
-        const response = await axios.get(`${API_URL}/meal-cart/groceries`, {
+        const response = await axios.get(`${API_URL}/meals/groceries`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
@@ -246,7 +276,7 @@ const api = {
 
     setupMealPlan: async (config) => {
         const token = localStorage.getItem('access_token');
-        const response = await axios.post(`${API_URL}/meal-cart/setup`, config, {
+        const response = await axios.post(`${API_URL}/meals/generate-weekly`, config, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;

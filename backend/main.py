@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import create_db_and_tables, engine
-from app.api.routes import products, users, logs, analytics, inventory, dashboard, lenses, smart_cart, meal_cart
+from app.api.routes import products, users, logs, analytics, inventory, dashboard, lenses, smart_cart, meals
 from app.models.models import User, CustomLens, MealTemplate
 from sqlmodel import Session, select
 import json
@@ -51,6 +51,7 @@ def lifespan(app: FastAPI):
             session.commit()
 
         # Ensure Meal Templates exist
+        from app.models.models import MealPlan
         if not session.exec(select(MealTemplate)).first():
             templates = [
                 {
@@ -67,7 +68,11 @@ def lifespan(app: FastAPI):
                 }
             ]
             for t_data in templates:
-                session.add(MealTemplate(**t_data))
+                tmpl = MealTemplate(**t_data)
+                session.add(tmpl)
+                session.commit()
+                # Create a simple plan for Monday
+                session.add(MealPlan(user_id=user.id, meal_template_id=tmpl.id, day_of_week="Monday", meal_type=tmpl.meal_type))
             session.commit()
 
     yield
@@ -84,9 +89,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://127.0.0.1:5173",
         "http://localhost:5173",
-        "http://192.168.1.9:5173"
+        "http://127.0.0.1:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -102,7 +108,7 @@ app.include_router(inventory.router)
 app.include_router(dashboard.router)
 app.include_router(lenses.router, prefix="/lenses", tags=["Lenses"])
 app.include_router(smart_cart.router, prefix="/smart-cart", tags=["Smart Cart"])
-app.include_router(meal_cart.router)
+app.include_router(meals.router)
 
 @app.get("/")
 def read_root():

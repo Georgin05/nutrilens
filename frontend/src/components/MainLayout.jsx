@@ -7,10 +7,9 @@ export default function MainLayout({ children }) {
 
     const navItems = [
         { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
-        { path: '/logs', icon: 'restaurant_menu', label: 'Daily Log' },
         { path: '/scan', icon: 'barcode_scanner', label: 'Scanner' },
         { path: '/ai-buddy', icon: 'smart_toy', label: 'AI Buddy' },
-        { path: '/meal-cart', icon: 'shopping_basket', label: 'Meal Cart' },
+        { path: '/meals-cart', icon: 'calendar_month', label: 'Meals Cart' },
         { path: '/profile', icon: 'person', label: 'Profile' }
     ];
 

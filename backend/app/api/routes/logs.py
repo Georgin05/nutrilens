@@ -55,12 +55,12 @@ def get_todays_logs(
     today = datetime.utcnow().date()
     start_of_day = datetime(today.year, today.month, today.day)
     
-    # Query all logs for the user for today
-    statement = select(DailyLog, Product).join(Product).where(
+    # Query all logs for the user for today (no join, use DailyLog's stored macros)
+    statement = select(DailyLog).where(
         DailyLog.user_id == current_user.id,
         DailyLog.timestamp >= start_of_day
     )
-    result = session.exec(statement).all()
+    results = session.exec(statement).all()
     
     log_responses = []
     tot_cal = 0.0
@@ -68,27 +68,22 @@ def get_todays_logs(
     tot_carb = 0.0
     tot_fat = 0.0
 
-    for log, product in result:
-        cal = (product.calories or 0.0) * log.serving_size
-        pro = (product.protein_g or 0.0) * log.serving_size
-        carb = (product.carbs_g or 0.0) * log.serving_size
-        fat = (product.fat_g or 0.0) * log.serving_size
-        
-        tot_cal += cal
-        tot_pro += pro
-        tot_carb += carb
-        tot_fat += fat
+    for log in results:
+        tot_cal += log.calories
+        tot_pro += log.protein_g
+        tot_carb += log.carbs_g
+        tot_fat += log.fat_g
         
         log_responses.append(DailyLogResponse(
             id=log.id,
             user_id=log.user_id,
-            barcode=log.barcode,
-            product_name=product.name,
+            barcode=log.barcode or "CUSTOM",
+            product_name=log.product_name or "Unknown Item",
             serving_size=log.serving_size,
-            calories=cal,
-            protein_g=pro,
-            carbs_g=carb,
-            fat_g=fat,
+            calories=log.calories,
+            protein_g=log.protein_g,
+            carbs_g=log.carbs_g,
+            fat_g=log.fat_g,
             timestamp=log.timestamp
         ))
         

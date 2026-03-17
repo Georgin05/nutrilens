@@ -34,6 +34,7 @@ import SmartCartSetup from './pages/SmartCartSetup';
 import SmartCartDashboard from './pages/SmartCartDashboard';
 import MealCartPage from './pages/MealCartPage';
 import MealCartSetup from './pages/MealCartSetup';
+import GroceryPage from './pages/GroceryPage';
 import MainLayout from './components/MainLayout';
 
 // --- Global Theme & Utilities ---
@@ -162,10 +163,18 @@ export default function App() {
         <Route path="/smart-cart/setup" element={<SmartCartSetup />} />
         <Route path="/smart-cart/dashboard" element={<SmartCartDashboard />} />
         <Route 
-          path="/meal-cart" 
+          path="/meals-cart" 
           element={
             <MainLayout>
               <MealCartPage />
+            </MainLayout>
+          } 
+        />
+        <Route 
+          path="/meals-cart/grocery" 
+          element={
+            <MainLayout>
+              <MealCartPage initialMode="groceries" />
             </MainLayout>
           } 
         />
