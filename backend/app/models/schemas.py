@@ -61,8 +61,14 @@ class UserProfileUpdate(BaseModel):
 # ---- Phase 3 Schemas ----
 
 class DailyLogCreate(BaseModel):
-    barcode: str
-    serving_size: float
+    barcode: Optional[str] = None
+    product_name: Optional[str] = None
+    serving_size: float = 1.0
+    calories: Optional[float] = 0.0
+    protein_g: Optional[float] = 0.0
+    carbs_g: Optional[float] = 0.0
+    fat_g: Optional[float] = 0.0
+    meal_type: Optional[str] = None
 
 class DailyLogResponse(BaseModel):
     id: int

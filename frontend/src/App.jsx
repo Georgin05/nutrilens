@@ -35,6 +35,7 @@ import SmartCartDashboard from './pages/SmartCartDashboard';
 import MealCartPage from './pages/MealCartPage';
 import MealCartSetup from './pages/MealCartSetup';
 import GroceryPage from './pages/GroceryPage';
+import AiBuddyPage from './pages/AiBuddyPage';
 import MainLayout from './components/MainLayout';
 
 // --- Global Theme & Utilities ---
@@ -109,6 +110,14 @@ export default function App() {
           element={
             <MainLayout>
               <LiveScannerPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/ai-buddy"
+          element={
+            <MainLayout>
+              <AiBuddyPage />
             </MainLayout>
           }
         />

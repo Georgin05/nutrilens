@@ -7,7 +7,14 @@ import {
     BarChart3, 
     Sparkles, 
     Plus,
-    PlusCircle
+    PlusCircle,
+    Coffee,
+    Sun,
+    Moon,
+    Apple,
+    Zap,
+    CheckCircle2,
+    CalendarDays
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -19,55 +26,145 @@ const MealCartPage = ({ initialMode = 'meals' }) => {
     const navigate = useNavigate();
     const [viewMode, setViewMode] = useState(initialMode);
     const [weeklyPlan, setWeeklyPlan] = useState([]);
-    const [selectedDay, setSelectedDay] = useState('Monday');
+    const [selectedDay, setSelectedDay] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }));
     const [loading, setLoading] = useState(true);
     const [includeProteinShake, setIncludeProteinShake] = useState(false);
+    const [loggedMeals, setLoggedMeals] = useState({}); // Tracking logged state by meal unique ID (e.g., day-type)
 
     useEffect(() => {
         setViewMode(initialMode);
     }, [initialMode]);
 
-    const dayLabels = {
-        'Monday': 'Mon',
-        'Tuesday': 'Tue',
-        'Wednesday': 'Wed',
-        'Thursday': 'Thu',
-        'Friday': 'Fri',
-        'Saturday': 'Sat',
-        'Sunday': 'Sun'
+    const getDaysForWeek = () => {
+        const today = new Date();
+        const currentDayIndex = today.getDay(); // 0 (Sun) to 6 (Sat)
+        const mondayOffset = currentDayIndex === 0 ? -6 : 1 - currentDayIndex; // Get to Monday
+        
+        const daysArray = [];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(today);
+            date.setDate(today.getDate() + mondayOffset + i);
+            daysArray.push({
+                full: date.toLocaleDateString('en-US', { weekday: 'long' }),
+                label: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                date: date.getDate().toString()
+            });
+        }
+        return daysArray;
     };
 
-    const days = Object.entries(dayLabels).map(([full, label], idx) => ({
-        full,
-        label,
-        date: (23 + idx).toString()
-    }));
+    const days = getDaysForWeek();
 
     useEffect(() => {
-        generatePlan();
+        fetchPlan();
     }, [includeProteinShake]);
 
-    const generatePlan = () => {
+    const fetchPlan = async () => {
         setLoading(true);
-        const plan = getMockWeeklyPlan(includeProteinShake);
-        setWeeklyPlan(plan);
-        setLoading(false);
+        try {
+            // First try to get existing plan
+            let planData = await api.getMealPlan();
+            
+            // If no plan exists, generate one
+            if (!planData || planData.length === 0) {
+                await api.post('/meals/generate-weekly');
+                planData = await api.getMealPlan();
+            }
+
+            // Map backend flat structure to Day-based structure
+            const daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            const grouped = daysOrder.map(day => {
+                const dayMeals = planData
+                    .filter(p => p.day_of_week === day)
+                    .map(p => ({
+                        id: p.id,
+                        type: p.meal_type,
+                        name: p.meal_template?.name || 'Standard Meal',
+                        calories: p.meal_template?.calories || 0,
+                        protein: p.meal_template?.protein_g || 0,
+                        carbs: p.meal_template?.carbs_g || 0,
+                        fat: p.meal_template?.fat_g || 0
+                    }));
+
+                const totals = dayMeals.reduce((acc, m) => ({
+                    calories: acc.calories + m.calories,
+                    protein: acc.protein + m.protein,
+                    carbs: acc.carbs + m.carbs,
+                    fat: acc.fat + m.fat
+                }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+                return {
+                    day_of_week: day,
+                    meals: dayMeals,
+                    totals
+                };
+            });
+
+            setWeeklyPlan(grouped);
+        } catch (error) {
+            console.error("Error fetching plan:", error);
+            // Fallback to mock if API fails during transition
+            const mock = getMockWeeklyPlan(includeProteinShake);
+            setWeeklyPlan(mock);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const dayPlan = weeklyPlan.find(d => d.day_of_week === selectedDay);
     const currentDayMeals = dayPlan ? dayPlan.meals : [];
 
     const mealCategories = currentDayMeals.map(meal => {
+        let icon = <UtensilsCrossed size={24} />;
+        let iconBg = 'bg-emerald-500/20';
+        
+        if (meal.type === 'Breakfast') {
+            icon = <Coffee size={24} className="text-emerald-400" />;
+            iconBg = 'bg-emerald-400/10';
+        } else if (meal.type === 'Lunch') {
+            icon = <Sun size={24} className="text-amber-400" />;
+            iconBg = 'bg-amber-400/10';
+        } else if (meal.type === 'Dinner') {
+            icon = <Moon size={24} className="text-indigo-400" />;
+            iconBg = 'bg-indigo-400/10';
+        } else if (meal.type === 'Snack') {
+            icon = <Apple size={24} className="text-rose-400" />;
+            iconBg = 'bg-rose-400/10';
+        } else if (meal.type === 'Supplement') {
+            icon = <Zap size={24} className="text-yellow-400" />;
+            iconBg = 'bg-yellow-400/10';
+        }
+
         return {
-            type: meal.type,
+            ...meal,
+            icon,
+            iconBg,
             time: meal.type === 'Breakfast' ? '08:30 AM' : meal.type === 'Lunch' ? '12:45 PM' : meal.type === 'Snack' ? '04:00 PM' : meal.type === 'Supplement' ? '06:00 PM' : '07:30 PM',
-            name: meal.name,
             description: 'Balanced nutritional meal based on active lens.',
             kcal: meal.calories,
-            protein: meal.protein,
-            image: meal.image_url || 'https://images.unsplash.com/photo-1546241072-48010ad28c2c?auto=format&fit=crop&q=80&w=200'
+            protein: meal.protein
         };
     });
+
+    const handleLogMeal = async (meal) => {
+        const mealId = `${selectedDay}-${meal.type}`;
+        if (loggedMeals[mealId]) return;
+
+        try {
+            await api.logCustomMeal({
+                name: meal.name,
+                calories: meal.calories,
+                protein: meal.protein,
+                carbs: meal.carbs,
+                fat: meal.fat,
+                type: meal.type
+            });
+            setLoggedMeals(prev => ({ ...prev, [mealId]: true }));
+        } catch (error) {
+            console.error("Error logging meal:", error);
+            alert("Failed to log meal. Please try again.");
+        }
+    };
 
     if (loading) {
         return (
@@ -119,6 +216,9 @@ const MealCartPage = ({ initialMode = 'meals' }) => {
                     </div>
 
                     <div className="icon-btns">
+                        <button className="icon-btn" onClick={() => navigate('/logs')} title="Go to Daily Log">
+                            <CalendarDays size={20} className="text-primary" />
+                        </button>
                         <button className="icon-btn"><Search size={20} /></button>
                         <button className="icon-btn"><Bell size={20} /></button>
                     </div>
@@ -174,8 +274,8 @@ const MealCartPage = ({ initialMode = 'meals' }) => {
                                         </>
                                     ) : (
                                         <>
-                                            <div className="meal-img">
-                                                <img src={meal.image} alt={meal.name} />
+                                            <div className={`meal-icon-container ${meal.iconBg} clay-inset`}>
+                                                {meal.icon}
                                             </div>
                                             <div className="meal-info">
                                                 <div className="meal-top">
@@ -189,7 +289,27 @@ const MealCartPage = ({ initialMode = 'meals' }) => {
                                                     <span className="macro"><i className="dot protein"></i> {meal.protein}g Protein</span>
                                                 </div>
                                             </div>
-                                            <button className="more-btn text-slate-400"><MoreVertical size={20} /></button>
+                                            <div className="flex flex-col gap-2 items-end">
+                                                <button 
+                                                    className={`log-today-btn transition-all duration-300 font-bold px-4 py-2 rounded-xl flex items-center gap-2 ${
+                                                        loggedMeals[`${selectedDay}-${meal.type}`] 
+                                                            ? 'bg-emerald-500/10 text-emerald-500 cursor-default' 
+                                                            : 'bg-primary text-background-dark hover:brightness-110 active:scale-95 shadow-clay-primary'
+                                                    }`}
+                                                    onClick={() => handleLogMeal(meal)}
+                                                    disabled={loggedMeals[`${selectedDay}-${meal.type}`]}
+                                                >
+                                                    {loggedMeals[`${selectedDay}-${meal.type}`] ? (
+                                                        <>
+                                                            <CheckCircle2 size={16} />
+                                                            <span>Logged</span>
+                                                        </>
+                                                    ) : (
+                                                        <span>Log Today</span>
+                                                    )}
+                                                </button>
+                                                <button className="more-btn text-slate-400"><MoreVertical size={20} /></button>
+                                            </div>
                                         </>
                                     )}
                                 </div>

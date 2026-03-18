@@ -16,33 +16,53 @@ def log_consumption(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
-    # Check if the product exists in the DB (it should have been fetched/cached via /products/ first)
-    product = session.get(Product, log_in.barcode)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found in local catalog. Fetch it via /products/ first.")
+    # Check if this is a barcode scan or a custom entry
+    if log_in.barcode:
+        product = session.get(Product, log_in.barcode)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found in local catalog. Fetch it via /products/ first.")
+        
+        # Create the log entry from product data
+        new_log = DailyLog(
+            user_id=current_user.id,
+            barcode=log_in.barcode,
+            product_name=product.name,
+            serving_size=log_in.serving_size,
+            calories=(product.calories or 0.0) * log_in.serving_size,
+            protein_g=(product.protein_g or 0.0) * log_in.serving_size,
+            carbs_g=(product.carbs_g or 0.0) * log_in.serving_size,
+            fat_g=(product.fat_g or 0.0) * log_in.serving_size,
+            meal_type=log_in.meal_type or "Scan",
+            timestamp=datetime.utcnow()
+        )
+    else:
+        # Custom log from meal cart or manual entry
+        new_log = DailyLog(
+            user_id=current_user.id,
+            product_name=log_in.product_name or "Custom Meal",
+            serving_size=log_in.serving_size,
+            calories=log_in.calories,
+            protein_g=log_in.protein_g,
+            carbs_g=log_in.carbs_g,
+            fat_g=log_in.fat_g,
+            meal_type=log_in.meal_type,
+            timestamp=datetime.utcnow()
+        )
 
-    # Create the log entry
-    new_log = DailyLog(
-        user_id=current_user.id,
-        barcode=log_in.barcode,
-        serving_size=log_in.serving_size,
-        timestamp=datetime.utcnow()
-    )
     session.add(new_log)
     session.commit()
     session.refresh(new_log)
 
-    # Return with dynamically calculated macros per serving
     return DailyLogResponse(
         id=new_log.id,
         user_id=new_log.user_id,
-        barcode=new_log.barcode,
-        product_name=product.name,
+        barcode=new_log.barcode or "CUSTOM",
+        product_name=new_log.product_name or "Unknown Item",
         serving_size=new_log.serving_size,
-        calories=(product.calories or 0.0) * new_log.serving_size,
-        protein_g=(product.protein_g or 0.0) * new_log.serving_size,
-        carbs_g=(product.carbs_g or 0.0) * new_log.serving_size,
-        fat_g=(product.fat_g or 0.0) * new_log.serving_size,
+        calories=new_log.calories,
+        protein_g=new_log.protein_g,
+        carbs_g=new_log.carbs_g,
+        fat_g=new_log.fat_g,
         timestamp=new_log.timestamp
     )
 

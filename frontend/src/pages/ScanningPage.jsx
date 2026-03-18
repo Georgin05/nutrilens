@@ -36,6 +36,13 @@ export default function ScanningPage() {
             const data = await api.getProduct(barcode);
             setProductData(data);
             setScanned(true);
+            
+            // Record this in recent scans history automatically
+            try {
+                await api.logScan(barcode, data.name);
+            } catch (scanErr) {
+                console.warn("Failed to record scan in history:", scanErr);
+            }
         } catch (err) {
             console.error("Failed to fetch product:", err);
             setError(err.response?.data?.detail || "Could not find product data for this barcode.");

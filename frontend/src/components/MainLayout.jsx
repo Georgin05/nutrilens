@@ -1,16 +1,25 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  ScanBarcode,
+  Bot,
+  CalendarRange,
+  User,
+  Microscope,
+  Menu
+} from 'lucide-react';
 
 export default function MainLayout({ children }) {
     const location = useLocation();
     const currentPath = location.pathname;
 
     const navItems = [
-        { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
-        { path: '/scan', icon: 'barcode_scanner', label: 'Scanner' },
-        { path: '/ai-buddy', icon: 'smart_toy', label: 'AI Buddy' },
-        { path: '/meals-cart', icon: 'calendar_month', label: 'Meals Cart' },
-        { path: '/profile', icon: 'person', label: 'Profile' }
+        { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+        { path: '/scan', icon: <ScanBarcode size={20} />, label: 'Scanner' },
+        { path: '/ai-buddy', icon: <Bot size={20} />, label: 'AI Buddy' },
+        { path: '/meals-cart', icon: <CalendarRange size={20} />, label: 'Meals Cart' },
+        { path: '/profile', icon: <User size={20} />, label: 'Profile' }
     ];
 
     return (
@@ -19,7 +28,7 @@ export default function MainLayout({ children }) {
             <aside className="hidden lg:flex w-72 h-full flex-col p-6 shrink-0 border-r border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-4 mb-8">
                     <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary clay-thumb shrink-0">
-                        <span className="material-symbols-outlined text-3xl">biotech</span>
+                        <Microscope size={28} />
                     </div>
                     <div>
                         <h1 className="text-xl font-black tracking-tight">NutriLog</h1>
@@ -40,7 +49,7 @@ export default function MainLayout({ children }) {
                                         : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
                                 }`}
                             >
-                                <span className="material-symbols-outlined">{item.icon}</span>
+                                {item.icon}
                                 <span>{item.label}</span>
                             </Link>
                         );
@@ -50,7 +59,7 @@ export default function MainLayout({ children }) {
                 <div className="mt-auto pt-6 border-t border-slate-200 dark:border-slate-800">
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 clay-thumb overflow-hidden border-2 border-primary/20 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-slate-400">person</span>
+                            <User size={20} className="text-slate-400" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold truncate">Nutri User</p>
@@ -77,7 +86,7 @@ export default function MainLayout({ children }) {
                                 isActive ? 'text-primary' : 'text-slate-500 hover:text-primary/70'
                             }`}
                         >
-                            <span className="material-symbols-outlined">{item.icon}</span>
+                            {item.icon}
                             <span className="text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
                         </Link>
                     );

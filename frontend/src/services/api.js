@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const PC_IP = "localhost"; // Use localhost to match browser origin
+const PC_IP = "127.0.0.1"; // Use IP to avoid localhost resolution issues
 const API_URL = `http://${PC_IP}:8000`; // Direct connection to FastAPI backend
 
 const api = {
@@ -109,6 +109,22 @@ const api = {
         return response.data;
     },
 
+    logCustomMeal: async (mealData) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/logs/consume`, {
+            product_name: mealData.name,
+            calories: mealData.calories,
+            protein_g: mealData.protein,
+            carbs_g: mealData.carbs,
+            fat_g: mealData.fat,
+            meal_type: mealData.type,
+            serving_size: 1.0
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
     analyzeIngredients: async (ingredientsText, productName = "Custom Product") => {
         const token = localStorage.getItem('access_token');
         const response = await axios.post(`${API_URL}/products/analyze-ingredients`, {
@@ -174,6 +190,31 @@ const api = {
     updateGroceryItemStatus: async (itemId, status) => {
         const token = localStorage.getItem('access_token');
         const response = await axios.patch(`${API_URL}/smart-cart/item/${itemId}?status=${status}`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    // --- AI Buddy Endpoints ---
+    aiBuddyChat: async (message) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/ai-buddy/chat`, { message }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    analyzeAiMeal: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/ai-buddy/analyze-meal`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getAiRecommendations: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/ai-buddy/recommendations`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
@@ -257,6 +298,18 @@ const api = {
         return response.data;
     },
 
+    logScan: async (barcode, productName) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/dashboard/log-scan`, {
+            barcode,
+            product_name: productName
+        }, {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { barcode, product_name: productName } // The backend expects them as query params based on the signature @router.post("/log-scan")
+        });
+        return response.data;
+    },
+
     // --- Meal Cart Endpoints ---
     getMealPlan: async () => {
         const token = localStorage.getItem('access_token');
@@ -277,6 +330,14 @@ const api = {
     setupMealPlan: async (config) => {
         const token = localStorage.getItem('access_token');
         const response = await axios.post(`${API_URL}/meals/generate-weekly`, config, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getMealTemplates: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/meals/templates`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
