@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const PC_IP = "127.0.0.1"; // Use IP to avoid localhost resolution issues
+const PC_IP = window.location.hostname || "127.0.0.1"; 
 const API_URL = `http://${PC_IP}:8000`; // Direct connection to FastAPI backend
 
 const api = {
