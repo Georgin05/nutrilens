@@ -57,22 +57,21 @@ def get_daily_summary(
     
     # Logic for default lens behavior if no custom lens is active
     if not active_lens:
-        # Basic mapping from health goal to mock lens settings
-        goal = current_user.health_goal or "Maintenance"
-        if goal == "Weight Loss":
-            cal_mod = -500
-            p_ratio, c_ratio, f_ratio = 0.3, 0.4, 0.3
-        elif goal == "Muscle Gain":
-            cal_mod = 500
-            p_ratio, c_ratio, f_ratio = 0.35, 0.45, 0.2
-        else:
-            cal_mod = 0
-            p_ratio, c_ratio, f_ratio = 0.2, 0.5, 0.3
-    else:
+        goal = current_user.health_goal or "Clean Eating" # Default to clean eating
+        stmt = select(CustomLens).where(CustomLens.name == goal).where(CustomLens.is_system == True)
+        active_lens = session.exec(stmt).first()
+        
+    if active_lens:
         cal_mod = active_lens.calorie_modifier
         p_ratio = active_lens.protein_ratio
         c_ratio = active_lens.carb_ratio
         f_ratio = active_lens.fat_ratio
+        lens_name = active_lens.name
+    else:
+        # Failsafe
+        cal_mod = 0
+        p_ratio, c_ratio, f_ratio = 0.2, 0.5, 0.3
+        lens_name = "Dynamic Base"
 
     target_calories = tdee + cal_mod
     
@@ -321,23 +320,11 @@ def get_user_nutrition_lens(
         active_lens = session.get(CustomLens, current_user.active_lens_id)
     
     if not active_lens:
-        goal = current_user.health_goal or "Maintenance"
-        if goal == "Weight Loss":
-            cal_mod = -500
-            p_ratio, c_ratio, f_ratio = 0.3, 0.4, 0.3
-            lens_name = "Fat Loss"
-            tags = ["Calorie Deficit", "Moderate Protein"]
-        elif goal == "Muscle Gain":
-            cal_mod = 500
-            p_ratio, c_ratio, f_ratio = 0.35, 0.45, 0.2
-            lens_name = "Muscle Build"
-            tags = ["Calorie Surplus", "High Protein"]
-        else:
-            cal_mod = 0
-            p_ratio, c_ratio, f_ratio = 0.2, 0.5, 0.3
-            lens_name = "Maintenance"
-            tags = ["Balanced", "Natural Health"]
-    else:
+        goal = current_user.health_goal or "Clean Eating"
+        stmt = select(CustomLens).where(CustomLens.name == goal).where(CustomLens.is_system == True)
+        active_lens = session.exec(stmt).first()
+        
+    if active_lens:
         cal_mod = active_lens.calorie_modifier
         p_ratio = active_lens.protein_ratio
         c_ratio = active_lens.carb_ratio
@@ -349,6 +336,12 @@ def get_user_nutrition_lens(
         elif cal_mod < 0: tags.append("Calorie Deficit")
         if p_ratio > 0.3: tags.append("High Protein")
         if c_ratio < 0.3: tags.append("Low Carb")
+    else:
+        # Failsafe fallback
+        cal_mod = 0
+        p_ratio, c_ratio, f_ratio = 0.2, 0.5, 0.3
+        lens_name = "Maintenance"
+        tags = ["Balanced", "Natural Health"]
 
     target_calories = tdee + cal_mod
     target_protein = (target_calories * p_ratio) / 4

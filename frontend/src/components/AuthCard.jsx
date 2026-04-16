@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
@@ -6,11 +6,27 @@ export default function AuthCard() {
     const [activeTab, setActiveTab] = useState('register'); // 'login' or 'register'
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [goal, setGoal] = useState('Fat Loss');
+    const [goal, setGoal] = useState('');
+    const [systemLenses, setSystemLenses] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchLenses = async () => {
+            try {
+                const lenses = await api.getSystemLenses();
+                setSystemLenses(lenses);
+                if (lenses.length > 0) {
+                    setGoal(lenses[0].name);
+                }
+            } catch (err) {
+                console.error("Failed to load system lenses", err);
+            }
+        };
+        fetchLenses();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -120,12 +136,7 @@ export default function AuthCard() {
                             </div>
 
                             <div className="goal-grid">
-                                {[
-                                    { name: 'Fat Loss', icon: 'monitor_weight' },
-                                    { name: 'Muscle Build', icon: 'fitness_center' },
-                                    { name: 'Diabetes', icon: 'medical_services' },
-                                    { name: 'Clean Eating', icon: 'eco' }
-                                ].map((l) => (
+                                {systemLenses.map((l) => (
                                     <label key={l.name} className="goal-card-label group">
                                         <input
                                             type="radio"

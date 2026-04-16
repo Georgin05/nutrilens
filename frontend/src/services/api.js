@@ -60,6 +60,11 @@ const api = {
         return response.data;
     },
 
+    getSystemLenses: async () => {
+        const response = await axios.get(`${API_URL}/lenses/system`);
+        return response.data;
+    },
+
     getTodaysLogs: async () => {
         const token = localStorage.getItem('access_token');
         const response = await axios.get(`${API_URL}/logs/today`, {
@@ -387,6 +392,30 @@ const api = {
     getAdminLenses: async () => {
         const token = localStorage.getItem('access_token');
         const response = await axios.get(`${API_URL}/admin/lenses`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    createAdminLens: async (lensData) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/admin/lenses`, lensData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    updateAdminLens: async (lensId, lensData) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.put(`${API_URL}/admin/lenses/${lensId}`, lensData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    deleteAdminLens: async (lensId) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.delete(`${API_URL}/admin/lenses/${lensId}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;

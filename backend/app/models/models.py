@@ -76,7 +76,9 @@ class ScanLog(SQLModel, table=True):
 class CustomLens(SQLModel, table=True):
     __tablename__ = "custom_lenses"
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    is_system: bool = Field(default=False)
+    icon: str = Field(default="visibility") # Material Symbol name
     name: str
     theme_color: str
     calorie_modifier: float = Field(default=0.0) # e.g. -400, +400

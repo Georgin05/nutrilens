@@ -53,6 +53,7 @@ def get_all_lenses(session: Session = Depends(get_session)):
 class LensCreateAdmin(BaseModel):
     name: str
     theme_color: str
+    icon: str = "visibility"
     calorie_modifier: float
     protein_ratio: float
     carb_ratio: float
@@ -60,12 +61,26 @@ class LensCreateAdmin(BaseModel):
 
 @router.post("/lenses")
 def create_lens_admin(lens_in: LensCreateAdmin, session: Session = Depends(get_session)):
-    user = session.exec(select(User)).first()
-    new_lens = CustomLens(user_id=user.id, **lens_in.dict())
+    new_lens = CustomLens(is_system=True, **lens_in.dict())
     session.add(new_lens)
     session.commit()
     session.refresh(new_lens)
     return new_lens
+
+@router.put("/lenses/{lens_id}")
+def update_lens_admin(lens_id: int, lens_in: LensCreateAdmin, session: Session = Depends(get_session)):
+    lens = session.get(CustomLens, lens_id)
+    if not lens:
+        raise HTTPException(status_code=404, detail="Lens not found")
+    
+    update_data = lens_in.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(lens, key, value)
+        
+    session.add(lens)
+    session.commit()
+    session.refresh(lens)
+    return lens
 
 @router.delete("/lenses/{lens_id}")
 def delete_lens(lens_id: int, session: Session = Depends(get_session)):

@@ -39,6 +39,27 @@ def create_custom_lens(lens_in: CustomLensCreate, session: Session = Depends(get
     )
     return response
 
+@router.get("/system", response_model=List[CustomLensResponse])
+def get_system_lenses(session: Session = Depends(get_session)):
+    """
+    Retrieves all default system lenses to show in the Registration Goal picker.
+    """
+    statement = select(CustomLens).where(CustomLens.is_system == True)
+    results = session.exec(statement).all()
+    
+    response_list = []
+    for lens in results:
+        flagged_list = json.loads(lens.flagged_ingredients_json) if lens.flagged_ingredients_json else []
+        # user_id is optional but CustomLensResponse usually expects it. We can default to 0 for system lenses.
+        lens_dict = lens.dict()
+        if lens_dict.get("user_id") is None:
+            lens_dict["user_id"] = 0
+            
+        r = CustomLensResponse(**lens_dict, flagged_ingredients=flagged_list)
+        response_list.append(r)
+        
+    return response_list
+
 @router.get("/custom", response_model=List[CustomLensResponse])
 def get_user_custom_lenses(session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     """
@@ -50,7 +71,10 @@ def get_user_custom_lenses(session: Session = Depends(get_session), current_user
     response_list = []
     for lens in results:
         flagged_list = json.loads(lens.flagged_ingredients_json) if lens.flagged_ingredients_json else []
-        r = CustomLensResponse(**lens.dict(), flagged_ingredients=flagged_list)
+        lens_dict = lens.dict()
+        if lens_dict.get("user_id") is None:
+            lens_dict["user_id"] = 0
+        r = CustomLensResponse(**lens_dict, flagged_ingredients=flagged_list)
         response_list.append(r)
         
     return response_list
@@ -59,7 +83,7 @@ def get_user_custom_lenses(session: Session = Depends(get_session), current_user
 def evaluate_product_with_lens(barcode: str, lens_id: str, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
     """
     Calculates a dynamic score for a specific product based on the provided lens_id 
-    (can be a preset string or the integer ID of a Custom Lens).
+    (can be a preset string name or the integer ID of a Custom Lens).
     """
     
     # 1. Fetch Product Data
@@ -73,14 +97,21 @@ def evaluate_product_with_lens(barcode: str, lens_id: str, session: Session = De
              raise HTTPException(status_code=404, detail="Product not found via API.")
         product_data = api_data
         
-    # 2. Fetch User's Custom Lenses for Context (only needed if len_id is a custom int)
-    custom_lenses = []
-    if lens_id not in ['muscle_build', 'fat_loss', 'diabetes_friendly', 'athlete_performance', 'clean_eating']:
-         statement = select(CustomLens).where(CustomLens.user_id == current_user.id)
-         custom_lenses = session.exec(statement).all()
+    # 2. Fetch Lens from DB
+    lens = None
+    if lens_id.isdigit():
+        lens = session.get(CustomLens, int(lens_id))
+    
+    if not lens:
+        # Try finding by name (for presets passed dynamically via frontend name)
+        stmt = select(CustomLens).where(CustomLens.name.ilike(lens_id.replace("_", " ")))
+        lens = session.exec(stmt).first()
+        
+    if not lens:
+        raise HTTPException(status_code=404, detail="Lens not found.")
         
     # 3. Evaluate!
-    result = evaluate_food_by_lens(product_data, lens_id, custom_lenses)
+    result = evaluate_food_by_lens(product_data, lens)
     
     return {
         "product_name": product_data.get('name', 'Unknown Product'),

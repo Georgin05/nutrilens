@@ -5,6 +5,7 @@ import api from '../services/api';
 export default function AdminFoodDatabase() {
     const [products, setProducts] = useState([]);
     const [templates, setTemplates] = useState([]);
+    const [systemLenses, setSystemLenses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('scan');
     const [newMeal, setNewMeal] = useState({
@@ -103,12 +104,14 @@ export default function AdminFoodDatabase() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [prodsData, mealsData] = await Promise.all([
+                const [prodsData, mealsData, lensesData] = await Promise.all([
                     api.getAdminProducts(),
-                    api.getAdminMeals()
+                    api.getAdminMeals(),
+                    api.getSystemLenses()
                 ]);
                 setProducts(prodsData || []);
                 setTemplates(mealsData || []);
+                setSystemLenses(lensesData || []);
             } catch (err) {
                 console.error("Failed to fetch food db data", err);
             } finally {
@@ -117,6 +120,28 @@ export default function AdminFoodDatabase() {
         };
         fetchData();
     }, []);
+
+    // Local JS Preview calculation mapping the backend logic
+    const calculatePreviewScore = (lens, prodObj) => {
+        let score = 100;
+        const p = Number(prodObj.protein_g) || 0;
+        const c = Number(prodObj.carbs_g) || 0;
+        const f = Number(prodObj.fat_g) || 0;
+        const total = p + c + f;
+        
+        if (total > 0) {
+            const pRatio = p / total;
+            const cRatio = c / total;
+            const fRatio = f / total;
+            
+            if (pRatio < lens.protein_ratio * 0.7) score -= 15;
+            else if (pRatio >= lens.protein_ratio) score += 10;
+            
+            if (cRatio > lens.carb_ratio * 1.5) score -= 10;
+            if (fRatio > lens.fat_ratio * 1.5) score -= 10;
+        }
+        return Math.max(0, Math.min(100, score));
+    };
   return (
     <div className="bg-[#021109] text-[#e6fced] font-['Inter'] selection:bg-primary selection:text-[#005d2e] min-h-screen">
         {/* SideNavBar */}
@@ -404,6 +429,34 @@ export default function AdminFoodDatabase() {
                                 </div>
                             </div>
                             
+                            {/* Live Lens Scoring Preview */}
+                            <div className="bg-[#102b1e]/50 border border-white/5 rounded-xl p-4">
+                                <h4 className="text-xs font-bold text-[#9bb0a3] uppercase tracking-widest mb-3 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-sm">visibility</span>
+                                    Live Lens Preview
+                                </h4>
+                                <div className="space-y-2">
+                                    {systemLenses.map(lens => {
+                                        const score = calculatePreviewScore(lens, productForm);
+                                        let color = "text-rose-400";
+                                        if (score > 60) color = "text-[#ffb148]";
+                                        if (score >= 80) color = "text-[#3cff90]";
+                                        
+                                        return (
+                                            <div key={lens.name} className="flex justify-between items-center text-xs">
+                                                <span className="text-[#e6fced]">{lens.name}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-16 h-1.5 bg-[#04170e] rounded-full overflow-hidden">
+                                                        <div className={`h-full bg-current ${color}`} style={{width: `${score}%`}}></div>
+                                                    </div>
+                                                    <span className={`font-bold w-6 text-right ${color}`}>{score}</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
                             <div className="pt-4 space-y-3">
                                 <button className="w-full py-4 bg-[#3cff90] text-[#005d2e] font-bold rounded-full shadow-lg shadow-[#3cff90]/20 hover:shadow-[#3cff90]/30 transition-all flex items-center justify-center gap-2" type="submit">
                                     <span className="material-symbols-outlined text-lg">check_circle</span>

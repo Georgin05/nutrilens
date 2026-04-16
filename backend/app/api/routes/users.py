@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from datetime import timedelta
 
 from app.db.database import get_session
-from app.models.models import User
+from app.models.models import User, CustomLens
 from app.models.schemas import UserCreate, UserLogin, UserResponse, Token, UserProfileUpdate
 from app.core.auth import get_password_hash, verify_password, create_access_token
 from app.api.deps import get_current_user
@@ -22,12 +22,21 @@ def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
             detail="Email already registered"
         )
     
+    # Resolve health goal to an active lens id
+    active_lens_id = None
+    if user_in.health_goal:
+        stmt = select(CustomLens).where(CustomLens.name == user_in.health_goal).where(CustomLens.is_system == True)
+        system_lens = session.exec(stmt).first()
+        if system_lens:
+            active_lens_id = system_lens.id
+            
     # Create new user
     hashed_password = get_password_hash(user_in.password)
     new_user = User(
         email=user_in.email, 
         password_hash=hashed_password,
-        health_goal=user_in.health_goal
+        health_goal=user_in.health_goal,
+        active_lens_id=active_lens_id
     )
     session.add(new_user)
     session.commit()
