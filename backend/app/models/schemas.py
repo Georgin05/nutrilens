@@ -80,6 +80,7 @@ class DailyLogResponse(BaseModel):
     protein_g: float
     carbs_g: float
     fat_g: float
+    meal_type: Optional[str] = None
     timestamp: datetime
     
     model_config = ConfigDict(from_attributes=True)

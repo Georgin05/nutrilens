@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-    Send, 
-    Mic, 
-    Plus, 
-    MoreHorizontal, 
-    Search, 
-    Sparkles, 
-    Droplets, 
-    Zap, 
+import {
+    Send,
+    Mic,
+    Plus,
+    MoreHorizontal,
+    Search,
+    Sparkles,
+    Droplets,
+    Zap,
     Flame,
     Target,
     ArrowRight
@@ -17,10 +17,10 @@ import './AiBuddyPage.css';
 
 const AiBuddyPage = () => {
     const [messages, setMessages] = useState([
-        { 
-            id: 1, 
-            type: 'ai', 
-            text: "Hello John! I've analyzed your breakfast log from this morning. You're tracking well on protein today (32g so far). Ready to log your lunch?",
+        {
+            id: 1,
+            type: 'ai',
+            text: "Hello Geo! I've analyzed your breakfast log from this morning. You're tracking well on protein today (32g so far). Ready to log your lunch?",
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
     ]);
@@ -34,11 +34,15 @@ const AiBuddyPage = () => {
         carbs: 40,
         fats: 55
     });
-    
+
     const scrollRef = useRef(null);
 
     useEffect(() => {
         fetchData();
+        fetchHistory();
+    }, []);
+
+    useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
@@ -48,6 +52,29 @@ const AiBuddyPage = () => {
             setRecommendations(recs);
         } catch (error) {
             console.error("Error fetching AI data:", error);
+        }
+    };
+
+    const fetchHistory = async () => {
+        try {
+            const history = await api.getAiHistory();
+            if (history && history.length > 0) {
+                const formattedHistory = history.map((msg, index) => ({
+                    id: `hist-${index}-${Date.now()}`,
+                    type: msg.role === 'user' ? 'user' : 'ai',
+                    text: msg.content,
+                    // Note: If timestamp is ISO date, we parse it nicely, but history timestamp from backend is an ISO string
+                    timestamp: msg.timestamp 
+                                ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }));
+                // Combine default greeting + history? Actually, real chat apps just show history.
+                // But let's keep the greeting at the top if we want to ensure context.
+                // It's cleaner to just replace the whole array with history if it exists.
+                setMessages(formattedHistory);
+            }
+        } catch (error) {
+            console.error("Error fetching AI history:", error);
         }
     };
 
@@ -72,7 +99,7 @@ const AiBuddyPage = () => {
 
         try {
             const response = await api.aiBuddyChat(input);
-            
+
             // Add fake delay for realism
             setTimeout(() => {
                 const aiMsg = {
@@ -190,9 +217,9 @@ const AiBuddyPage = () => {
                 <form className="input-area" onSubmit={handleSend}>
                     <div className="input-wrapper clay-inset">
                         <button type="button" className="add-btn"><Plus size={20} /></button>
-                        <input 
-                            type="text" 
-                            placeholder="Ask AI Buddy about your nutrition..." 
+                        <input
+                            type="text"
+                            placeholder="Ask AI Buddy about your nutrition..."
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                         />
@@ -211,7 +238,7 @@ const AiBuddyPage = () => {
                         <Target size={18} className="text-primary" />
                         Daily Macro Tracking
                     </h3>
-                    
+
                     <div className="macro-card-detailed clay-card-dark">
                         <div className="calorie-summary">
                             <div className="flex justify-between items-end mb-2">
@@ -219,10 +246,10 @@ const AiBuddyPage = () => {
                                     <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Calories</p>
                                     <h4 className="text-3xl font-black">{macros.calories} <span className="text-sm font-bold text-slate-500">/ {macros.goal}</span></h4>
                                 </div>
-                                <span className="percentage text-primary font-black">{Math.round((macros.calories/macros.goal)*100)}%</span>
+                                <span className="percentage text-primary font-black">{Math.round((macros.calories / macros.goal) * 100)}%</span>
                             </div>
                             <div className="progress-bar-bg h-3 rounded-full overflow-hidden">
-                                <div className="progress-fill h-full bg-primary shadow-neon" style={{ width: `${(macros.calories/macros.goal)*100}%` }}></div>
+                                <div className="progress-fill h-full bg-primary shadow-neon" style={{ width: `${(macros.calories / macros.goal) * 100}%` }}></div>
                             </div>
                         </div>
 

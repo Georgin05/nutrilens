@@ -63,6 +63,7 @@ def log_consumption(
         protein_g=new_log.protein_g,
         carbs_g=new_log.carbs_g,
         fat_g=new_log.fat_g,
+        meal_type=new_log.meal_type,
         timestamp=new_log.timestamp
     )
 
@@ -104,6 +105,7 @@ def get_todays_logs(
             protein_g=log.protein_g,
             carbs_g=log.carbs_g,
             fat_g=log.fat_g,
+            meal_type=log.meal_type,
             timestamp=log.timestamp
         ))
         

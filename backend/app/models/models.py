@@ -111,6 +111,14 @@ class MealTemplate(SQLModel, table=True):
     
     plans: List["MealPlan"] = Relationship(back_populates="meal_template")
 
+class AIChatHistory(SQLModel, table=True):
+    __tablename__ = "ai_chat_history"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    role: str # 'user' or 'ai'
+    content: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
 class MealPlan(SQLModel, table=True):
     __tablename__ = "meal_plans"
     id: Optional[int] = Field(default=None, primary_key=True)

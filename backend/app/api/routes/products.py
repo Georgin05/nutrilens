@@ -45,19 +45,24 @@ def _build_product_response(product: Product, additives_tags: list = None) -> Pr
 
 @router.get("/{barcode}", response_model=ProductResponse)
 def get_product_by_barcode(barcode: str, session: Session = Depends(get_session)):
-    # 1. Check local DB cache
+    """
+    Priority Flow:
+    1. Local Database Lookup
+    2. Open Food Facts API Fallback
+    3. Error 404
+    """
+    # 1. Check local DB cache first
     product = session.get(Product, barcode)
     if product:
          return _build_product_response(product)
 
-    # 2. If not in DB, fetch from Open Food Facts API
+    # 2. If not found, fetch from Open Food Facts API
     api_data = fetch_product_info(barcode)
     
     if api_data:
         additives_tags = api_data.pop("additives", [])
-        categories = api_data.pop("categories", [])
         
-        # 3. Save to local DB
+        # 3. Save to local DB for future fast access
         new_product = Product(**api_data)
         session.add(new_product)
         session.commit()
@@ -65,8 +70,8 @@ def get_product_by_barcode(barcode: str, session: Session = Depends(get_session)
         
         return _build_product_response(new_product, additives_tags)
 
-    # 4. Return error if not found anywhere
-    raise HTTPException(status_code=404, detail="Product not found")
+    # 4. Final Fallback: Product not in global database
+    raise HTTPException(status_code=404, detail="Product not identified")
 
 @router.get("/{barcode}/swaps")
 def get_product_swaps(barcode: str):

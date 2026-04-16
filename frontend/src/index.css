@@ -48,10 +48,11 @@
   --border-color: rgba(255, 255, 255, 0.1);
   --border-light: rgba(255, 255, 255, 0.05);
 
-  --card-bg: #182e22;
+  --bg-dark: #021109;
+  --card-bg: #071e13;
   /* slightly lighter than bg-dark */
-  --input-bg: #102219;
-  --input-border: #294936;
+  --input-bg: #04170e;
+  --input-border: #102b1e;
 
   --card-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
 }

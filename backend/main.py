@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import create_db_and_tables, engine
-from app.api.routes import products, users, logs, analytics, inventory, dashboard, lenses, smart_cart, meals, ai_buddy
+from app.api.routes import products, users, logs, analytics, inventory, dashboard, lenses, smart_cart, meals, ai_buddy, admin
 from app.models.models import User, CustomLens, MealTemplate
 from sqlmodel import Session, select
 import json
@@ -17,7 +17,7 @@ def lifespan(app: FastAPI):
         if not user:
             user = User(
                 email="test@example.com",
-                password_hash="hashed",
+                password_hash="$2b$12$Hrpum3xJokZGJTXBM0C5MefVLUeyEYVJR5CgZVJJ.9MOzcoecnhHS", # password: admin123
                 health_goal="Muscle Gain",
                 weight_kg=75.0,
                 height_cm=180.0,
@@ -115,6 +115,7 @@ app.include_router(lenses.router, prefix="/lenses", tags=["Lenses"])
 app.include_router(smart_cart.router, prefix="/smart-cart", tags=["Smart Cart"])
 app.include_router(meals.router)
 app.include_router(ai_buddy.router, prefix="/ai-buddy", tags=["AI Buddy"])
+app.include_router(admin.router)
 
 @app.get("/")
 def read_root():

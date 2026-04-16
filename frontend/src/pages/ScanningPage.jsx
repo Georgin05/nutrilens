@@ -16,7 +16,6 @@ export default function ScanningPage() {
     const [showManual, setShowManual] = useState(false);
     const [manualText, setManualText] = useState('');
     const [manualName, setManualName] = useState('');
-    const [scannerError, setScannerError] = useState(null);
 
     // --- Demo Sandbox Presets ---
     const PRESET_PRODUCTS = [
@@ -59,357 +58,300 @@ export default function ScanningPage() {
         }
     };
 
-    // Navigation helper
     const handleStartLiveScanner = () => {
         navigate('/live-scan');
     };
 
-    // --- Action Handlers ---
     const handleLogIntake = async () => {
         if (!productData) return;
-
         try {
-            await api.logFood(productData.barcode, 1.0); // Default 1 serving
-            navigate('/dashboard'); // Go to dashboard to see updated rings
+            await api.logFood(productData.barcode, 1.0);
+            navigate('/dashboard');
         } catch (err) {
             console.error("Failed to log food:", err);
             alert("Failed to log intake. Please try again.");
         }
     };
 
+    // --- Render Helpers ---
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6 text-on-surface">
+                <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6 shadow-neon"></div>
+                <h1 className="text-2xl font-black uppercase tracking-widest animate-pulse">Analyzing Biochemistry...</h1>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6 text-on-surface text-center">
+                <span className="material-symbols-outlined text-6xl text-error mb-4">error</span>
+                <h2 className="text-3xl font-black mb-2 uppercase">Scan Failed</h2>
+                <p className="text-on-surface-variant max-w-md mb-8">{error}</p>
+                <button 
+                    onClick={() => { setError(null); setScanned(false); }}
+                    className="claymorphic-primary px-8 py-3 rounded-full font-bold text-on-primary"
+                >
+                    Try Again
+                </button>
+            </div>
+        );
+    }
+
+    if (scanned && productData) {
+        return (
+            <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6">
+                <div className="clay-card w-full max-w-4xl p-8 md:p-12 relative overflow-hidden">
+                    {/* Decorative Background Glow */}
+                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 blur-[100px] rounded-full"></div>
+                    
+                    <div className="relative z-10 flex flex-col lg:flex-row gap-12">
+                        <div className="flex-1 space-y-8">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <span className="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase border border-primary/20">
+                                        Barcode Detected &bull; {productData.barcode}
+                                    </span>
+                                    <h2 className="text-4xl font-extrabold text-white mt-4 tracking-tighter" title={productData.name}>
+                                        {productData.name}
+                                    </h2>
+                                    <p className="text-on-surface-variant text-lg font-medium mt-1 italic">Molecular Composition Identified</p>
+                                </div>
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className={`w-24 h-24 flex items-center justify-center rounded-3xl ${
+                                        ['a', 'b'].includes(productData.nutri_score?.toLowerCase()) ? 'clay-badge-green' :
+                                        ['c'].includes(productData.nutri_score?.toLowerCase()) ? 'clay-badge-amber' :
+                                        'bg-error/20 border border-error/30'
+                                    } shadow-lg`}>
+                                        <span className={`text-5xl font-black italic uppercase ${
+                                            ['d', 'e'].includes(productData.nutri_score?.toLowerCase()) ? 'text-error' : 'text-surface'
+                                        }`}>
+                                            {productData.nutri_score || '?'}
+                                        </span>
+                                    </div>
+                                    <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Nutri-Score</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="clay-chip p-4 flex flex-col items-center">
+                                    <span className="text-[10px] text-on-surface-variant font-bold uppercase mb-1">Calories</span>
+                                    <span className="text-2xl font-black text-white">{Math.round(productData.calories || 0)}</span>
+                                </div>
+                                <div className="clay-chip p-4 flex flex-col items-center text-primary">
+                                    <span className="text-[10px] text-on-surface-variant font-bold uppercase mb-1">Protein</span>
+                                    <span className="text-2xl font-black">{Math.round(productData.protein_g || 0)}g</span>
+                                </div>
+                                <div className="clay-chip p-4 flex flex-col items-center text-amber-500">
+                                    <span className="text-[10px] text-on-surface-variant font-bold uppercase mb-1">Carbs</span>
+                                    <span className="text-2xl font-black">{Math.round(productData.carbs_g || 0)}g</span>
+                                </div>
+                                <div className="clay-chip p-4 flex flex-col items-center text-error">
+                                    <span className="text-[10px] text-on-surface-variant font-bold uppercase mb-1">Fat</span>
+                                    <span className="text-2xl font-black">{Math.round(productData.fat_g || 0)}g</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="lg:w-[350px] flex flex-col justify-between">
+                            <div>
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                                        <span className="material-symbols-outlined text-amber-500 text-xl">science</span>
+                                    </div>
+                                    <h3 className="text-xs font-black text-white uppercase tracking-[0.2em]">Bio-Marker Alerts</h3>
+                                </div>
+
+                                <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                                    {productData.flagged_ingredients && productData.flagged_ingredients.length > 0 ? (
+                                        productData.flagged_ingredients.map((ing, idx) => (
+                                            <div key={idx} className="p-4 rounded-2xl bg-surface-container-highest/30 border border-outline-variant/10 flex items-center justify-between group hover:bg-surface-container-highest/50 transition-all">
+                                                <div>
+                                                    <span className="text-sm font-bold text-white block capitalize">{ing.name}</span>
+                                                    <span className="text-[10px] text-on-surface-variant font-medium">{ing.reason}</span>
+                                                </div>
+                                                <span className="material-symbols-outlined text-error text-xl animate-pulse">warning</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 text-center">
+                                            <span className="material-symbols-outlined text-primary text-3xl mb-2">verified</span>
+                                            <p className="text-primary font-bold text-sm uppercase tracking-widest">Clean Bio-Profile</p>
+                                            <p className="text-xs text-on-surface-variant mt-1">No inflammatory additives detected.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 mt-8">
+                                <button
+                                    onClick={handleLogIntake}
+                                    className="w-full claymorphic-primary text-surface font-black py-5 flex items-center justify-center gap-3 text-lg hover:scale-[1.02] active:scale-95 transition-all"
+                                >
+                                    <span>Log Daily Intake</span>
+                                    <span className="material-symbols-outlined font-black">add_circle</span>
+                                </button>
+                                <button
+                                    onClick={() => setScanned(false)}
+                                    className="w-full bg-surface-container-highest/40 text-on-surface-variant font-bold py-4 rounded-2xl hover:bg-surface-container-highest/60 transition-all text-sm uppercase tracking-widest"
+                                >
+                                    Dismiss Result
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="font-display bg-bg-dark text-slate-100 antialiased overflow-hidden min-h-full h-full">
-            <div className="relative flex h-full w-full flex-col overflow-hidden">
-                    {/* Hero Dashboard for Scanner */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#050505] z-10 flex-col px-4">
-                        <div className="w-full max-w-4xl text-center">
-                            <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                                <span className="material-symbols-outlined text-[100px] text-emerald-clay mb-6 drop-shadow-[0_0_20px_rgba(20,184,166,0.3)]">qr_code_scanner</span>
-                                <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">AI Molecular <span className="text-emerald-clay">Scanner</span></h1>
-                                <p className="text-slate-400 text-xl md:text-2xl font-medium max-w-2xl mx-auto leading-relaxed">
-                                    Analyze nutritional compounds, additives, and bio-markers in real-time using high-precision computer vision.
-                                </p>
-                            </div>
-                            
-                            <button 
-                                onClick={handleStartLiveScanner} 
-                                className="bg-gradient-to-br from-emerald-400 to-emerald-600 text-bg-dark font-black px-12 py-5 rounded-[2rem] hover:brightness-110 transition-all mb-6 shadow-[0_10px_40px_rgba(16,185,129,0.4)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.5)] active:scale-95 active:shadow-none duration-150 transform flex items-center gap-3 mx-auto group border border-emerald-300/50"
-                            >
-                                <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform duration-300">fit_screen</span> 
-                                <span className="text-xl tracking-[0.1em] uppercase">Start Live Camera</span>
-                            </button>
-                        </div>
+        <div className="bg-surface text-on-surface font-body selection:bg-primary/30 min-h-screen flex flex-col">
+            {/* TopAppBar */}
+            <header className="fixed top-0 left-0 w-full z-50 bg-[#021109]/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(60,255,144,0.05)] border-b border-primary/5">
+                <div className="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+                    <div className="flex items-center gap-2" onClick={() => navigate('/')}>
+                        <span className="text-2xl font-black text-[#3cff90] tracking-tighter uppercase font-headline cursor-pointer">NutriLens</span>
                     </div>
-
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-transparent to-bg-dark/70 pointer-events-none z-10"></div>
-
-                <header className="relative z-20 flex items-center justify-between px-8 py-6">
-                    <div className="flex items-center gap-12">
-                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-                            <div className="p-2 clay-badge-green">
-                                <span className="material-symbols-outlined text-bg-dark font-bold">center_focus_weak</span>
-                            </div>
-                            <h1 className="text-2xl font-extrabold tracking-tight">NutriLens</h1>
-                        </div>
+                    <div className="hidden md:flex items-center gap-8">
+                        <Link to="/dashboard" className="font-['Inter'] font-semibold text-[10px] uppercase tracking-widest text-[#9bb0a3] hover:text-[#3cff90] transition-all">Dashboard</Link>
+                        <Link to="/scanner" className="font-['Inter'] font-semibold text-[10px] uppercase tracking-widest text-[#3cff90]">Scan</Link>
+                        <Link to="/history" className="font-['Inter'] font-semibold text-[10px] uppercase tracking-widest text-[#9bb0a3] hover:text-[#3cff90] transition-all">History</Link>
+                        <span className="font-['Inter'] font-semibold text-[10px] uppercase tracking-widest text-[#9bb0a3] hover:text-[#3cff90] transition-all cursor-pointer">Sandbox</span>
                     </div>
-                    <div className="flex items-center gap-6">
-                        {/* SandBox Trigger Button */}
-                        <button
-                            onClick={() => setShowSandbox(true)}
-                            className="bg-purple-600 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-purple-700 transition"
-                        >
-                            <span className="material-symbols-outlined text-sm">construction</span>
-                            Dev Sandbox
-                        </button>
-
-                        <div className="clay-chip px-5 py-2 flex items-center gap-3">
-                            <span className="material-symbols-outlined text-emerald-clay text-sm">bolt</span>
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Live Analysis</span>
-                        </div>
-                        <button className="clay-utility-btn w-12 h-12 flex items-center justify-center">
+                    <div className="flex items-center gap-4 text-[#3cff90]">
+                        <button className="p-2 hover:bg-[#102b1e] rounded-full transition-all active:scale-95">
                             <span className="material-symbols-outlined">notifications</span>
                         </button>
-                        <div className="w-12 h-12 rounded-full border-4 border-emerald-clay/30 overflow-hidden shadow-lg cursor-pointer" onClick={() => navigate('/dashboard')}>
-                            <img alt="User profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBx9mnPg2rumpRyLWpez7Ob2zmQ-8HO_BRDNkuv2XRz9OIDPxi5zEC5fL2vPLexYTq7FtBxJQJAUi7IlFIyJuebtbbC9E8JeLKllUEEG1RBOzbYGOGlZMZfjfTdZ8Be0UJs-Fmn7kfjjpAMqcaGsPoOsoeF4Al4Ch8he8ukJ1D_Bnx6wbM3IhbFX8nygcoDO-7wQbuE2M9lnovlD4VshIKsQkh42SPTmK-fHx01bqz4dl5vt5tLx9-i56G2RYBo_vuM-AH28vkNC8Hz" />
-                        </div>
-                    </div>
-                </header>
-
-                <main className="relative z-10 flex-1 flex flex-col items-center justify-end pb-10 px-6">
-                    {loading ? (
-                        <div className="clay-card w-full max-w-5xl p-10 flex flex-col items-center justify-center min-h-[400px]">
-                            <div className="w-16 h-16 border-4 border-emerald-clay border-t-transparent rounded-full animate-spin mb-4"></div>
-                            <p className="text-emerald-clay font-bold tracking-widest uppercase">Analyzing Biochemistry...</p>
-                        </div>
-                    ) : error ? (
-                        <div className="clay-card w-full max-w-5xl p-10 flex flex-col items-center justify-center min-h-[400px] border-amber-clay/50 border">
-                            <span className="material-symbols-outlined text-5xl text-amber-clay mb-4">error</span>
-                            <h2 className="text-2xl font-bold text-white mb-2">Scan Failed</h2>
-                            <p className="text-slate-400 max-w-md text-center">{error}</p>
-                        </div>
-                    ) : scanned && productData ? (
-                        <div className="clay-card w-full max-w-5xl p-10">
-                            <div className="flex flex-col lg:flex-row gap-12">
-                                <div className="flex-1 space-y-8">
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <span className="bg-emerald-clay/10 text-emerald-clay px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">
-                                                Barcode Detected &bull; {productData.barcode}
-                                            </span>
-                                            <h2 className="text-3xl font-extrabold text-white mt-3 truncate max-w-md" title={productData.name}>
-                                                {productData.name}
-                                            </h2>
-                                            <p className="text-slate-400 text-lg font-medium">Scanned via OpenFoodFacts</p>
-                                        </div>
-                                        <div className="flex flex-col items-center gap-2">
-                                            {/* Dynamic Grade Badge based on Nutri-Score */}
-                                            <div className={`w-20 h-20 flex items-center justify-center rounded-2xl ${['a', 'b'].includes(productData.nutri_score?.toLowerCase()) ? 'clay-badge-green' :
-                                                ['c'].includes(productData.nutri_score?.toLowerCase()) ? 'clay-badge-amber' :
-                                                    ['d', 'e'].includes(productData.nutri_score?.toLowerCase()) ? 'bg-rose-500/20 shadow-[0_0_30px_rgba(244,63,94,0.3)] shadow-inner border border-rose-500/30' :
-                                                        'bg-slate-700/50 border border-slate-600'
-                                                }`}>
-                                                <span className={`text-4xl font-black italic uppercase ${['d', 'e'].includes(productData.nutri_score?.toLowerCase()) ? 'text-rose-400' :
-                                                    !productData.nutri_score ? 'text-slate-400 text-2xl' : 'text-bg-dark'
-                                                    }`}>
-                                                    {productData.nutri_score || '?'}
-                                                </span>
-                                            </div>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                Nutri-Score
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-wrap gap-4">
-                                        <div className="clay-chip px-4 py-3 flex items-center gap-3">
-                                            <span className="text-[10px] text-slate-400 font-bold uppercase">Calories</span>
-                                            <span className="text-lg font-extrabold text-white">{Math.round(productData.calories || 0)}</span>
-                                        </div>
-                                        <div className="clay-chip px-4 py-3 flex items-center gap-3">
-                                            <span className="text-[10px] text-slate-400 font-bold uppercase">Carbs</span>
-                                            <span className="text-lg font-extrabold text-amber-clay">{Math.round(productData.carbs_g || 0)}g</span>
-                                        </div>
-                                        <div className="clay-chip px-4 py-3 flex items-center gap-3">
-                                            <span className="text-[10px] text-slate-400 font-bold uppercase">Protein</span>
-                                            <span className="text-lg font-extrabold text-emerald-clay">{Math.round(productData.protein_g || 0)}g</span>
-                                        </div>
-                                        <div className="clay-chip px-4 py-3 flex items-center gap-3">
-                                            <span className="text-[10px] text-slate-400 font-bold uppercase">Fat</span>
-                                            <span className="text-lg font-extrabold text-rose-400">{Math.round(productData.fat_g || 0)}g</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="lg:w-[400px] flex flex-col justify-between">
-                                    <div>
-                                        <div className="flex items-center gap-3 mb-6">
-                                            <div className="p-1.5 clay-badge-amber">
-                                                <span className="material-symbols-outlined text-bg-dark text-xl">science</span>
-                                            </div>
-                                            <h3 className="text-sm font-black text-white uppercase tracking-wider">The Hidden Truth</h3>
-                                        </div>
-
-                                        <div className="space-y-3 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
-                                            {productData.flagged_ingredients && productData.flagged_ingredients.length > 0 ? (
-                                                productData.flagged_ingredients.map((ing, idx) => (
-                                                    <div key={idx} className="flex items-center justify-between p-4 clay-chip">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sm font-bold text-white capitalize">{ing.name}</span>
-                                                            <span className="text-[10px] text-slate-400 font-medium">{ing.reason}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="material-symbols-outlined text-slate-500 text-sm">warning</span>
-                                                        </div>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div className="p-4 clay-chip border border-emerald-clay/30 bg-emerald-clay/5 text-center">
-                                                    <span className="text-emerald-clay font-bold text-sm">Clean Label</span>
-                                                    <p className="text-xs text-slate-400 mt-1">No major ultra-processed flags found.</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={handleLogIntake}
-                                        className="w-full mt-8 clay-button-primary text-bg-dark font-black py-4 flex items-center justify-center gap-3 text-lg hover:brightness-110 active:scale-95 transition-all"
-                                    >
-                                        <span>Log Intake</span>
-                                        <span className="material-symbols-outlined font-bold">add_circle</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="mb-10 flex flex-col items-center">
-                            {scannerError && (
-                                <div className="clay-chip px-8 py-3 mb-4 border border-amber-clay/50 bg-amber-clay/10">
-                                    <p className="text-amber-clay text-sm font-bold flex items-center gap-2">
-                                        <span className="material-symbols-outlined">warning</span> Warning: {scannerError}
-                                    </p>
-                                </div>
-                            )}
-                            <div className="clay-chip px-8 py-3">
-                                <p className="text-slate-200 text-sm font-bold">
-                                    Position product barcode for high-fidelity molecular analysis
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="mt-10 flex items-center gap-10">
-                        <button onClick={() => setShowManual(true)} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
-                            <div className="clay-utility-btn p-3 group-hover:bg-slate-700 transition-colors">
-                                <span className="material-symbols-outlined">keyboard</span>
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">Manual Entry</span>
-                        </button>
-                        <div className="h-8 w-1 bg-white/5 rounded-full"></div>
-                        <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group">
-                            <div className="clay-utility-btn p-3 group-hover:bg-slate-700 transition-colors">
-                                <span className="material-symbols-outlined text-emerald-clay">flash_on</span>
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">Flash Light</span>
+                        <button className="p-2 hover:bg-[#102b1e] rounded-full transition-all active:scale-95" onClick={() => navigate('/dashboard')}>
+                            <span className="material-symbols-outlined">person</span>
                         </button>
                     </div>
-                </main>
+                </div>
+            </header>
 
-                <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-20">
-                    <button className="w-14 h-14 clay-utility-btn flex items-center justify-center text-slate-300 hover:text-emerald-clay transition-colors">
-                        <span className="material-symbols-outlined text-2xl">zoom_in</span>
-                    </button>
-                    <button className="w-14 h-14 clay-utility-btn flex items-center justify-center text-slate-300 hover:text-emerald-clay transition-colors">
-                        <span className="material-symbols-outlined text-2xl">flip_camera_ios</span>
-                    </button>
-                    <button className="w-14 h-14 clay-utility-btn flex items-center justify-center text-slate-300 hover:text-emerald-clay transition-colors">
-                        <span className="material-symbols-outlined text-2xl">history</span>
-                    </button>
+            {/* Main Content Canvas */}
+            <main className="flex-grow flex flex-col items-center justify-center relative px-6 pt-24 pb-32">
+                {/* Viewfinder Background */}
+                <div className="absolute inset-0 z-0 overflow-hidden opacity-40 pointer-events-none">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] aspect-square max-w-[600px] border-[1px] border-primary/20 rounded-xl"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] aspect-square max-w-[800px] border-[1px] border-primary/5 rounded-full"></div>
+                    <img 
+                        alt="Scanning Background" 
+                        className="w-full h-full object-cover mix-blend-overlay" 
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4Fe4vn0YUZvqp4KVtNXealAYVoSn7z5Cly3zb8zdLtf1aKzK5WHlMY08EbLqmbTljBMm7IPp6E8k5SncBmZR9J-Ya3jI2ej72v9TocCGZhT8Pqb2Dm38A7l3etR_d47evR2MHjoK6hEMYd_JwkBce7FP71lOfWfWqknElvADShfq2evyDkG8EJUWYiOiJmkXIbOUCwFTshnRJ35btAeulAt44OsNuFpJOvk9zPsR2fTwDHpX9Dkr4OiYBqjXQ9HCzb9YT1SFr-ivT"
+                    />
                 </div>
 
-                {/* --- DEV SANDBOX MODAL --- */}
-                {showSandbox && (
-                    <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                        <div className="clay-card w-full max-w-md p-8 relative">
-                            <button
-                                onClick={() => setShowSandbox(false)}
-                                className="absolute top-4 right-4 text-slate-400 hover:text-white"
-                            >
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
-
-                            <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-purple-500">construction</span>
-                                Dev Sandbox
-                            </h3>
-                            <p className="text-slate-400 text-sm mb-6">Simulate scanning a real barcode to test the OpenFoodFacts API integration.</p>
-
-                            <div className="space-y-3 mb-8">
-                                <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500">Presets</h4>
-                                {PRESET_PRODUCTS.map((p, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => handleSimulateScan(p.barcode)}
-                                        className="w-full text-left px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-colors flex justify-between items-center group"
-                                    >
-                                        <span className="font-bold text-white group-hover:text-amber-500 transition-colors">{p.name}</span>
-                                        <span className="text-xs text-slate-500 font-mono bg-black/30 px-2 py-1 rounded">{p.barcode}</span>
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="space-y-3">
-                                <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500">Custom Barcode</h4>
-                                <form onSubmit={handleCustomScanSubmit} className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={customBarcode}
-                                        onChange={(e) => setCustomBarcode(e.target.value)}
-                                        placeholder="e.g. 8000500167106"
-                                        className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white font-mono outline-none focus:border-purple-500 transition-colors"
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-xl font-bold transition-colors"
-                                    >
-                                        Scan
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                {/* Center Scan Action */}
+                <div className="relative z-10 flex flex-col items-center gap-12 max-w-4xl w-full">
+                    <div className="text-center space-y-4">
+                        <h1 className="font-headline font-extrabold text-5xl md:text-7xl tracking-tighter uppercase text-primary leading-none">Scan & Go</h1>
+                        <p className="text-on-surface-variant font-medium text-lg md:text-xl max-w-md mx-auto">Point your camera at any meal to unlock instant nutritional insights.</p>
                     </div>
-                )}
+                    <div className="relative group">
+                        {/* Decorative Rings */}
+                        <div className="absolute -inset-8 border border-primary/10 rounded-full animate-pulse"></div>
+                        <div className="absolute -inset-16 border border-primary/5 rounded-full"></div>
+                        {/* Main Button */}
+                        <button 
+                            onClick={handleStartLiveScanner}
+                            className="w-48 h-48 md:w-64 md:h-64 rounded-full claymorphic-primary flex flex-col items-center justify-center gap-3 active:scale-90 transition-all duration-300 group-hover:scale-105 scan-glow-ring shadow-neon"
+                        >
+                            <span className="material-symbols-outlined text-surface text-6xl md:text-8xl" style={{ fontVariationSettings: "'FILL' 1" }}>center_focus_strong</span>
+                            <span className="text-surface font-headline font-black tracking-tighter uppercase text-lg">Tap to Scan</span>
+                        </button>
+                    </div>
+                </div>
 
-                {/* --- MANUAL ENTRY MODAL --- */}
-                {showManual && (
-                    <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                        <div className="clay-card w-full max-w-md p-8 relative">
-                            <button
-                                onClick={() => setShowManual(false)}
-                                className="absolute top-4 right-4 text-slate-400 hover:text-white"
-                            >
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
+                {/* Right Side Quick Actions (Floating Glass) */}
+                <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-20 hidden md:flex">
+                    <div className="glass-panel p-2 rounded-2xl flex flex-col gap-2 border border-outline-variant/10 shadow-2xl">
+                        <button 
+                            onClick={() => setShowSandbox(true)}
+                            className="flex items-center gap-4 px-4 py-4 rounded-xl bg-surface-container-highest/40 hover:bg-surface-container-highest text-on-surface-variant hover:text-primary transition-all group"
+                        >
+                            <span className="material-symbols-outlined text-2xl">construction</span>
+                            <span className="font-['Inter'] font-bold text-[10px] uppercase tracking-widest hidden lg:block">Dev Sandbox</span>
+                        </button>
+                        <button 
+                            onClick={() => navigate('/history')}
+                            className="flex items-center gap-4 px-4 py-4 rounded-xl bg-surface-container-highest/40 hover:bg-surface-container-highest text-on-surface-variant hover:text-primary transition-all group"
+                        >
+                            <span className="material-symbols-outlined text-2xl">history</span>
+                            <span className="font-['Inter'] font-bold text-[10px] uppercase tracking-widest hidden lg:block">Scan History</span>
+                        </button>
+                    </div>
+                </div>
 
-                            <h3 className="text-2xl font-black text-white mb-2 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-emerald-clay">keyboard</span>
-                                Manual Entry
-                            </h3>
-                            <p className="text-slate-400 text-sm mb-6">Type or paste the ingredients list below to analyze a product not found via barcode.</p>
+                {/* Mobile Secondary Actions */}
+                <div className="flex md:hidden gap-4 mt-12 z-10">
+                    <button onClick={() => setShowSandbox(true)} className="glass-panel flex items-center gap-3 px-6 py-4 rounded-full text-on-surface-variant border border-primary/10">
+                        <span className="material-symbols-outlined text-xl">construction</span>
+                        <span className="font-['Inter'] font-bold text-[10px] uppercase tracking-widest">Sandbox</span>
+                    </button>
+                    <button onClick={() => navigate('/history')} className="glass-panel flex items-center gap-3 px-6 py-4 rounded-full text-on-surface-variant border border-primary/10">
+                        <span className="material-symbols-outlined text-xl">history</span>
+                        <span className="font-['Inter'] font-bold text-[10px] uppercase tracking-widest">History</span>
+                    </button>
+                </div>
+            </main>
 
-                            <form onSubmit={async (e) => {
-                                e.preventDefault();
-                                if (manualText.trim()) {
-                                    setLoading(true);
-                                    setError(null);
-                                    setShowManual(false);
-                                    try {
-                                        const data = await api.analyzeIngredients(manualText, manualName || "Custom Product");
-                                        setProductData(data);
-                                        setScanned(true);
-                                    } catch (err) {
-                                        console.error("Failed to analyze manual input:", err);
-                                        setError(err.response?.data?.detail || "Analysis failed.");
-                                        setScanned(false);
-                                    } finally {
-                                        setLoading(false);
-                                    }
-                                }
-                            }} className="space-y-4">
-                                <div>
-                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1 block">Product Name (Optional)</label>
-                                    <input
-                                        type="text"
-                                        value={manualName}
-                                        onChange={(e) => setManualName(e.target.value)}
-                                        placeholder="e.g. Grandma's Cookies"
-                                        className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-emerald-clay transition-colors"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1 block">Ingredients List *</label>
-                                    <textarea
-                                        value={manualText}
-                                        onChange={(e) => setManualText(e.target.value)}
-                                        placeholder="Water, Sugar, Enriched Flour, Partially Hydrogenated Soybean Oil..."
-                                        rows={4}
-                                        required
-                                        className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-emerald-clay transition-colors resize-none"
-                                    />
-                                </div>
+            {/* BottomNavBar (Mobile Only) */}
+            <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-[#021109]/90 backdrop-blur-2xl rounded-t-[2.5rem] border-t border-primary/10 shadow-2xl">
+                <Link to="/dashboard" className="flex flex-col items-center gap-1 text-[#9bb0a3] p-2">
+                    <span className="material-symbols-outlined">grid_view</span>
+                    <span className="font-bold text-[9px] uppercase tracking-widest">Dashboard</span>
+                </Link>
+                <Link to="/scanner" className="flex flex-col items-center gap-1 bg-primary/10 text-primary rounded-2xl px-5 py-2 border border-primary/20">
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>center_focus_strong</span>
+                    <span className="font-bold text-[9px] uppercase tracking-widest">Scan</span>
+                </Link>
+                <Link to="/history" className="flex flex-col items-center gap-1 text-[#9bb0a3] p-2">
+                    <span className="material-symbols-outlined">history</span>
+                    <span className="font-bold text-[9px] uppercase tracking-widest">History</span>
+                </Link>
+            </nav>
+
+            {/* --- Modals for Sandbox/Manual --- */}
+            {showSandbox && (
+                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-6">
+                    <div className="clay-card w-full max-w-md p-8 relative">
+                        <button onClick={() => setShowSandbox(false)} className="absolute top-4 right-4 text-on-surface-variant hover:text-white transition-colors">
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
+                        <h3 className="text-2xl font-black text-white mb-6 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary">construction</span>
+                            Dev Sandbox
+                        </h3>
+                        <div className="space-y-3">
+                            {PRESET_PRODUCTS.map((p, idx) => (
                                 <button
-                                    type="submit"
-                                    className="w-full clay-button-primary text-bg-dark px-4 py-3 rounded-xl font-black text-lg hover:brightness-110 active:scale-95 transition-all mt-4"
+                                    key={idx}
+                                    onClick={() => handleSimulateScan(p.barcode)}
+                                    className="w-full text-left px-5 py-4 bg-surface-container-highest/40 hover:bg-primary/10 rounded-2xl border border-outline-variant/10 transition-all flex justify-between items-center group"
                                 >
-                                    Analyze Ingredients
+                                    <span className="font-bold text-white group-hover:text-primary">{p.name}</span>
+                                    <span className="text-xs text-on-surface-variant font-mono bg-black/30 px-2 py-1 rounded">{p.barcode}</span>
                                 </button>
+                            ))}
+                        </div>
+                        <div className="mt-8 pt-8 border-t border-outline-variant/10">
+                            <form onSubmit={handleCustomScanSubmit} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={customBarcode}
+                                    onChange={(e) => setCustomBarcode(e.target.value)}
+                                    placeholder="Enter Barcode"
+                                    className="flex-1 bg-surface-container-highest/30 border border-outline-variant/10 rounded-xl px-4 py-3 text-white font-mono outline-none focus:border-primary transition-all"
+                                />
+                                <button type="submit" className="claymorphic-primary px-6 py-3 rounded-xl font-black">Scan</button>
                             </form>
                         </div>
                     </div>
-                )}
-
-            </div>
+                </div>
+            )}
         </div>
     );
 }

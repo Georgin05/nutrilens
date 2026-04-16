@@ -23,7 +23,7 @@ def get_daily_summary(
     start_of_day = datetime(today.year, today.month, today.day)
     
     # Query all logs for the user for today
-    statement = select(DailyLog, Product).join(Product).where(
+    statement = select(DailyLog).where(
         DailyLog.user_id == current_user.id,
         DailyLog.timestamp >= start_of_day
     )
@@ -34,11 +34,11 @@ def get_daily_summary(
     tot_carb = 0.0
     tot_fat = 0.0
 
-    for log, product in result:
-        tot_cal += (product.calories or 0.0) * log.serving_size
-        tot_pro += (product.protein_g or 0.0) * log.serving_size
-        tot_carb += (product.carbs_g or 0.0) * log.serving_size
-        tot_fat += (product.fat_g or 0.0) * log.serving_size
+    for log in result:
+        tot_cal += log.calories or 0.0
+        tot_pro += log.protein_g or 0.0
+        tot_carb += log.carbs_g or 0.0
+        tot_fat += log.fat_g or 0.0
         
     # --- Dynamic Target Calculation ---
     # 1. Base metabolism
@@ -102,7 +102,7 @@ def get_food_logs(
     today = datetime.utcnow().date()
     start_of_day = datetime(today.year, today.month, today.day)
     
-    statement = select(DailyLog, Product).join(Product).where(
+    statement = select(DailyLog).where(
         DailyLog.user_id == current_user.id,
         DailyLog.timestamp >= start_of_day
     ).order_by(DailyLog.timestamp)
@@ -110,17 +110,18 @@ def get_food_logs(
     result = session.exec(statement).all()
     
     logs = []
-    for log, product in result:
+    for log in result:
         logs.append({
             "id": log.id,
-            "food": product.name,
+            "food": log.product_name or "Custom Meal",
             "portion": f"{log.serving_size} serving\u0073",
             "macros": {
-                 "p": round((product.protein_g or 0) * log.serving_size),
-                 "c": round((product.carbs_g or 0) * log.serving_size),
-                 "f": round((product.fat_g or 0) * log.serving_size)
+                 "p": round(log.protein_g or 0),
+                 "c": round(log.carbs_g or 0),
+                 "f": round(log.fat_g or 0)
             },
-            "calories": round((product.calories or 0) * log.serving_size),
+            "calories": round(log.calories or 0),
+            "meal_type": log.meal_type or "Snack",
             "time": log.timestamp.strftime("%I:%M %p")
         })
         
@@ -131,12 +132,29 @@ def get_recent_scans(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
-    statement = select(ScanLog).where(
+    statement = select(ScanLog, Product).join(
+        Product, ScanLog.barcode == Product.barcode, isouter=True
+    ).where(
         ScanLog.user_id == current_user.id
-    ).order_by(ScanLog.scan_time.desc()).limit(5)
+    ).order_by(ScanLog.scan_time.desc()).limit(20) # Increased limit for history page
     
-    scans = session.exec(statement).all()
-    return [{"food_name": scan.product_name, "scan_time": scan.scan_time, "barcode": scan.barcode} for scan in scans]
+    results = session.exec(statement).all()
+    
+    scans = []
+    for scan, product in results:
+        scans.append({
+            "id": scan.id,
+            "food_name": scan.product_name,
+            "barcode": scan.barcode,
+            "scan_time": scan.scan_time.isoformat(),
+            "calories": product.calories if product else 0,
+            "protein": product.protein_g if product else 0,
+            "carbs": product.carbs_g if product else 0,
+            "fat": product.fat_g if product else 0,
+            "nutri_score": product.nutri_score if product else None,
+            "brand": "Generic" # Product model doesn't have brand yet, using fallback
+        })
+    return scans
 
 @router.post("/log-scan")
 def log_scan(
@@ -170,13 +188,13 @@ def get_lens_insight(
     # Analyze today's food to generate insight
     today = datetime.utcnow().date()
     start_of_day = datetime(today.year, today.month, today.day)
-    statement = select(DailyLog, Product).join(Product).where(
+    statement = select(DailyLog).where(
         DailyLog.user_id == current_user.id,
         DailyLog.timestamp >= start_of_day
     )
     result = session.exec(statement).all()
     
-    tot_pro = sum([(product.protein_g or 0) * log.serving_size for log, product in result])
+    tot_pro = sum([(log.protein_g or 0) for log in result])
     target_pro = 150
     
     # Matching the new architecture response format:
@@ -211,7 +229,7 @@ def get_weekly_stats(
     start_date = today - timedelta(days=6)
     start_datetime = datetime(start_date.year, start_date.month, start_date.day)
 
-    statement = select(DailyLog, Product).join(Product).where(
+    statement = select(DailyLog).where(
         DailyLog.user_id == current_user.id,
         DailyLog.timestamp >= start_datetime
     )
@@ -230,10 +248,10 @@ def get_weekly_stats(
             "calories": 0,
         }
 
-    for log, product in result:
+    for log in result:
         log_date = str(log.timestamp.date())
         if log_date in daily_stats:
-            daily_stats[log_date]["calories"] += (product.calories or 0.0) * log.serving_size
+            daily_stats[log_date]["calories"] += (log.calories or 0.0)
 
     # The architecture requests a flat array
     return list(daily_stats.values())
@@ -252,7 +270,7 @@ def get_history(
     start_datetime = datetime(target_date.year, target_date.month, target_date.day)
     end_datetime = start_datetime + timedelta(days=1)
     
-    statement = select(DailyLog, Product).join(Product).where(
+    statement = select(DailyLog).where(
         DailyLog.user_id == current_user.id,
         DailyLog.timestamp >= start_datetime,
         DailyLog.timestamp < end_datetime
@@ -264,9 +282,9 @@ def get_history(
     
     # Matching the specific mock requested by user:
     # { calories: 1900, meals: ["Chicken Salad", "Rice Bowl"] }
-    for log, product in result:
-        tot_cal += (product.calories or 0.0) * log.serving_size
-        meals.append(product.name)
+    for log in result:
+        tot_cal += (log.calories or 0.0)
+        meals.append(log.product_name or "Custom Meal")
 
     return {
         "calories": round(tot_cal),

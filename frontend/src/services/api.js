@@ -195,10 +195,17 @@ const api = {
         return response.data;
     },
 
-    // --- AI Buddy Endpoints ---
     aiBuddyChat: async (message) => {
         const token = localStorage.getItem('access_token');
         const response = await axios.post(`${API_URL}/ai-buddy/chat`, { message }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getAiHistory: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/ai-buddy/history`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
@@ -347,6 +354,87 @@ const api = {
     get: async (endpoint) => {
         const token = localStorage.getItem('access_token');
         const response = await axios.get(`${API_URL}${endpoint}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    // --- Admin Endpoints ---
+    getAdminUsers: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/admin/users`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getAdminUserDetails: async (userId) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/admin/users/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getAdminAnalytics: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/admin/analytics/overview`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getAdminLenses: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/admin/lenses`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getAdminProducts: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/admin/products`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    createAdminProduct: async (productData) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/admin/products`, productData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    deleteAdminProduct: async (barcode) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.delete(`${API_URL}/admin/products/${barcode}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getAdminMeals: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/admin/meals/templates`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    createAdminMealTemplate: async (templateData) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/admin/meals/templates`, templateData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    getAdminAiConversations: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/admin/ai/conversations`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;

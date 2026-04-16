@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import api from './services/api';
 import {
@@ -36,7 +36,13 @@ import MealCartPage from './pages/MealCartPage';
 import MealCartSetup from './pages/MealCartSetup';
 import GroceryPage from './pages/GroceryPage';
 import AiBuddyPage from './pages/AiBuddyPage';
+import ScanHistoryPage from './pages/ScanHistoryPage';
 import MainLayout from './components/MainLayout';
+import AdminAnalytics from './pages/AdminAnalytics';
+import AdminUsers from './pages/AdminUsers';
+import AdminAiInsights from './pages/AdminAiInsights';
+import AdminLenses from './pages/AdminLenses';
+import AdminFoodDatabase from './pages/AdminFoodDatabase';
 
 // --- Global Theme & Utilities ---
 const useTheme = () => {
@@ -161,33 +167,40 @@ export default function App() {
           path="/lenses/wizard/final"
           element={<LensWizardFinal />}
         />
-        <Route 
-          path="/smart-cart" 
+        <Route
+          path="/smart-cart"
           element={
             <MainLayout>
               <SmartCartHub />
             </MainLayout>
-          } 
+          }
         />
+        <Route path="/history" element={<ScanHistoryPage />} />
         <Route path="/smart-cart/setup" element={<SmartCartSetup />} />
         <Route path="/smart-cart/dashboard" element={<SmartCartDashboard />} />
-        <Route 
-          path="/meals-cart" 
+        <Route
+          path="/meals-cart"
           element={
             <MainLayout>
               <MealCartPage />
             </MainLayout>
-          } 
+          }
         />
-        <Route 
-          path="/meals-cart/grocery" 
+        <Route
+          path="/meals-cart/grocery"
           element={
             <MainLayout>
               <MealCartPage initialMode="groceries" />
             </MainLayout>
-          } 
+          }
         />
         <Route path="/meal-cart-setup" element={<MealCartSetup />} />
+        <Route path="/admin" element={<Navigate to="/admin/analytics" replace />} />
+        <Route path="/admin/analytics" element={<AdminAnalytics />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/ai" element={<AdminAiInsights />} />
+        <Route path="/admin/lenses" element={<AdminLenses />} />
+        <Route path="/admin/products" element={<AdminFoodDatabase />} />
       </Routes>
     </div>
   );

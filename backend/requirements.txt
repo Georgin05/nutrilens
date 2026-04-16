@@ -1,6 +1,13 @@
 fastapi
 uvicorn
 sqlmodel
+bcrypt<4.0.0
 psycopg2-binary
 python-dotenv
 requests
+pydantic-settings
+google-generativeai
+pydantic[email]
+PyJWT
+python-multipart
+passlib[bcrypt]
