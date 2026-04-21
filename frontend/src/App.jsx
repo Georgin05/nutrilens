@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import api from './services/api';
 import {
@@ -21,7 +21,10 @@ import {
 
 import DashboardPage from './pages/DashboardPage';
 import ScanningPage from './pages/ScanningPage';
+import LiveScannerPage from './pages/LiveScannerPage';
+import LogsPage from './pages/LogsPage';
 import ProfilePage from './pages/ProfilePage';
+import UserNutritionLensPage from './pages/UserNutritionLensPage';
 import LensGalleryPage from './pages/LensGalleryPage';
 import LensWizardLimits from './pages/LensWizardLimits';
 import LensWizardGuard from './pages/LensWizardGuard';
@@ -29,9 +32,17 @@ import LensWizardFinal from './pages/LensWizardFinal';
 import SmartCartHub from './pages/SmartCartHub';
 import SmartCartSetup from './pages/SmartCartSetup';
 import SmartCartDashboard from './pages/SmartCartDashboard';
+import MealCartPage from './pages/MealCartPage';
+import MealCartSetup from './pages/MealCartSetup';
+import GroceryPage from './pages/GroceryPage';
+import AiBuddyPage from './pages/AiBuddyPage';
+import ScanHistoryPage from './pages/ScanHistoryPage';
 import MainLayout from './components/MainLayout';
-import LiveScannerPage from './pages/LiveScannerPage';
-import LogsPage from './pages/LogsPage';
+import AdminAnalytics from './pages/AdminAnalytics';
+import AdminUsers from './pages/AdminUsers';
+import AdminAiInsights from './pages/AdminAiInsights';
+import AdminLenses from './pages/AdminLenses';
+import AdminFoodDatabase from './pages/AdminFoodDatabase';
 
 // --- Global Theme & Utilities ---
 const useTheme = () => {
@@ -101,6 +112,22 @@ export default function App() {
           }
         />
         <Route
+          path="/live-scan"
+          element={
+            <MainLayout>
+              <LiveScannerPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/ai-buddy"
+          element={
+            <MainLayout>
+              <AiBuddyPage />
+            </MainLayout>
+          }
+        />
+        <Route
           path="/logs"
           element={
             <MainLayout>
@@ -113,6 +140,14 @@ export default function App() {
           element={
             <MainLayout>
               <ProfilePage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/user-lens"
+          element={
+            <MainLayout>
+              <UserNutritionLensPage />
             </MainLayout>
           }
         />
@@ -132,17 +167,41 @@ export default function App() {
           path="/lenses/wizard/final"
           element={<LensWizardFinal />}
         />
-        <Route 
-          path="/smart-cart" 
+        <Route
+          path="/smart-cart"
           element={
             <MainLayout>
               <SmartCartHub />
             </MainLayout>
-          } 
+          }
         />
+        <Route path="/history" element={<ScanHistoryPage />} />
         <Route path="/smart-cart/setup" element={<SmartCartSetup />} />
         <Route path="/smart-cart/dashboard" element={<SmartCartDashboard />} />
-        <Route path="/live-scan" element={<LiveScannerPage />} />
+        <Route
+          path="/meals-cart"
+          element={
+            <MainLayout>
+              <MealCartPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/meals-cart/grocery"
+          element={
+            <MainLayout>
+              <MealCartPage initialMode="groceries" />
+            </MainLayout>
+          }
+        />
+        <Route path="/meals-cart/planner" element={<Navigate to="/meals-cart" replace />} />
+        <Route path="/meal-cart-setup" element={<MealCartSetup />} />
+        <Route path="/admin" element={<Navigate to="/admin/analytics" replace />} />
+        <Route path="/admin/analytics" element={<AdminAnalytics />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/ai" element={<AdminAiInsights />} />
+        <Route path="/admin/lenses" element={<AdminLenses />} />
+        <Route path="/admin/products" element={<AdminFoodDatabase />} />
       </Routes>
     </div>
   );

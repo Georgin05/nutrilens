@@ -1,0 +1,223 @@
+/* Scan History Page Styles */
+
+.history-container {
+    padding-top: 100px;
+    padding-bottom: 120px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-wrapper {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.search-input {
+    width: 100%;
+    background: #071e13;
+    border: 1px solid #102b1e;
+    border-radius: 999px;
+    padding: 1rem 1.5rem 1rem 3.5rem;
+    color: #e6fced;
+    font-size: 1.125rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: #3cff90;
+    box-shadow: 0 0 20px rgba(60, 255, 144, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #3cff90;
+}
+
+.filter-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #102b1e;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3cff90;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    background: #153124;
+}
+
+.date-group-title {
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: #3cff90;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.date-group-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #102b1e, transparent);
+}
+
+.scan-history-card {
+    background: linear-gradient(135deg, #071e13 0%, #04170e 100%);
+    border: 1px solid rgba(60, 255, 144, 0.05);
+    border-radius: 2.5rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.scan-history-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(60, 255, 144, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.scan-card-main {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.scan-card-image-wrapper {
+    width: 120px;
+    height: 120px;
+    background: #f1f5f9; /* Fallback */
+    border-radius: 2rem;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.scan-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.scan-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.badge-warning {
+    background: rgba(248, 160, 16, 0.2);
+    color: #f8a010;
+    border: 1px solid rgba(248, 160, 16, 0.3);
+}
+
+.badge-success {
+    background: rgba(60, 255, 144, 0.2);
+    color: #3cff90;
+    border: 1px solid rgba(60, 255, 144, 0.3);
+}
+
+.scan-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.scan-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.25rem;
+}
+
+.scan-card-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #e6fced;
+    letter-spacing: -0.02em;
+}
+
+.scan-card-time {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #9bb0a3;
+}
+
+.scan-card-subtitle {
+    font-size: 0.875rem;
+    color: #9bb0a3;
+    font-weight: 500;
+}
+
+.scan-macro-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.scan-macro-item {
+    background: #021109;
+    border: 1px solid #102b1e;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.macro-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #9bb0a3;
+    margin-bottom: 0.125rem;
+}
+
+.macro-value {
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+@media (max-width: 640px) {
+    .scan-history-card {
+        padding: 1.25rem;
+    }
+    .scan-card-image-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 1.5rem;
+    }
+    .scan-card-title {
+        font-size: 1.125rem;
+    }
+    .scan-macro-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

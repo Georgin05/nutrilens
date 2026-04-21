@@ -1,0 +1,79 @@
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from datetime import date, datetime, timedelta
+from typing import List, Optional
+from app.api import deps
+from app.models.models import User, DailyLogs, Product, ScanLogs
+from app.services.calculator import calculate_bmr # Assume this exists from our sprint
+
+router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+
+@router.get("/summary")
+def get_daily_summary(
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """Calculates today's nutrient totals vs targets"""
+    today = date.today()
+    logs = db.query(DailyLogs).filter(
+        DailyLogs.user_id == current_user.id,
+        DailyLogs.date == today
+    ).all()
+
+    summary = {
+        "calories": sum(log.calories for log in logs),
+        "target_calories": current_user.target_calories or 2000,
+        "protein": sum(log.protein for log in logs),
+        "target_protein": current_user.target_protein or 120,
+        "carbs": sum(log.carbs for log in logs),
+        "target_carbs": current_user.target_carbs or 250,
+        "fat": sum(log.fat for log in logs),
+        "target_fat": current_user.target_fat or 70,
+        "sugar": sum(log.sugar for log in logs),
+        "target_sugar": 50 # Standard target
+    }
+    return summary
+
+@router.get("/food-logs")
+def get_food_logs(
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """Returns today's meal history"""
+    today = date.today()
+    return db.query(DailyLogs).filter(
+        DailyLogs.user_id == current_user.id,
+        DailyLogs.date == today
+    ).order_by(DailyLogs.time.desc()).all()
+
+@router.get("/recent-scans")
+def get_recent_scans(
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """Returns the last 5 scanned products"""
+    return db.query(ScanLogs).filter(
+        ScanLogs.user_id == current_user.id
+    ).order_by(ScanLogs.scan_time.desc()).limit(5).all()
+
+@router.get("/lens-insight")
+def get_lens_insight(
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """Generates personalized feedback based on Active Lens"""
+    # Logic based on current_user.active_lens
+    lens = current_user.active_lens or "Muscle Build"
+    today_summary = get_daily_summary(db, current_user)
+    
+    insight = {
+        "lens_active": lens,
+        "observation": "Nutrient balance looks stable.",
+        "recommendation": "Maintain current hydration levels."
+    }
+
+    if lens == "Muscle Build" and today_summary["protein"] < today_summary["target_protein"] * 0.5:
+        insight["observation"] = "Protein intake is significantly below your muscle-building target."
+        insight["recommendation"] = "Consider high-protein sources like lean chicken or Greek yogurt for your next meal."
+    
+    return insight

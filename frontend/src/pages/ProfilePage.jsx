@@ -46,16 +46,17 @@ export default function ProfilePage() {
                     health_goal: data.health_goal || ''
                 });
 
-                // Get Active Lens Name
-                const activeId = localStorage.getItem('activeLensId');
+                // Get Active Lens Name dynamically
+                const activeId = data.active_lens_id;
                 if (activeId) {
-                    if (['muscle_build', 'fat_loss', 'diabetes_friendly', 'athlete_performance', 'clean_eating'].includes(activeId)) {
-                        setActiveLensName(activeId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
-                    } else {
-                        // It's a custom lens ID, try to fetch its name
-                        const customLenses = await api.getCustomLenses();
-                        const myLens = customLenses.find(l => l.id.toString() === activeId.toString());
-                        if (myLens) setActiveLensName(myLens.name);
+                    const [systemLenses, customLenses] = await Promise.all([
+                        api.getSystemLenses(),
+                        api.getCustomLenses()
+                    ]);
+                    const allLenses = [...(systemLenses||[]), ...(customLenses||[])];
+                    const activeLens = allLenses.find(l => l.id.toString() === activeId.toString());
+                    if (activeLens) {
+                        setActiveLensName(activeLens.name);
                     }
                 }
             } catch (error) {
@@ -240,7 +241,7 @@ export default function ProfilePage() {
 
                         {/* Current Lens Section */}
                         <section>
-                            <div onClick={() => navigate('/lenses')} className="bg-clay-surface shadow-[inset_2px_2px_5px_rgba(255,255,255,0.05),_4px_4px_10px_rgba(0,0,0,0.5)] border border-white/5 rounded-2xl p-5 relative overflow-hidden group cursor-pointer border-l-4 border-l-primary hover:bg-white/5 active:scale-[0.98] transition-all">
+                            <div onClick={() => navigate('/user-lens')} className="bg-clay-surface shadow-[inset_2px_2px_5px_rgba(255,255,255,0.05),_4px_4px_10px_rgba(0,0,0,0.5)] border border-white/5 rounded-2xl p-5 relative overflow-hidden group cursor-pointer border-l-4 border-l-primary hover:bg-white/5 active:scale-[0.98] transition-all">
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="space-y-1 z-10">
                                         <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">Active AI Lens</span>

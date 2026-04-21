@@ -58,7 +58,7 @@ export default function FoodLogList() {
                                         </div>
                                         <div>
                                             <p className="font-black text-sm tracking-tight">{log.food}</p>
-                                            <p className="text-[10px] text-slate-500 font-medium">{log.time}</p>
+                                            <p className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{log.meal_type || 'Snack'} • {log.time}</p>
                                         </div>
                                     </td>
                                     <td className="py-4 text-sm font-medium text-slate-600 dark:text-slate-300">

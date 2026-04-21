@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
@@ -6,11 +6,28 @@ export default function AuthCard() {
     const [activeTab, setActiveTab] = useState('register'); // 'login' or 'register'
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [goal, setGoal] = useState('Weight Loss');
+    const [goal, setGoal] = useState('');
+    const [systemLenses, setSystemLenses] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchLenses = async () => {
+            try {
+                const lenses = await api.getSystemLenses();
+                const filteredLenses = lenses.filter(l => !l.name.toLowerCase().includes('athlete')).slice(0, 4);
+                setSystemLenses(filteredLenses);
+                if (filteredLenses.length > 0) {
+                    setGoal(filteredLenses[0].name);
+                }
+            } catch (err) {
+                console.error("Failed to load system lenses", err);
+            }
+        };
+        fetchLenses();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,16 +35,19 @@ export default function AuthCard() {
         setLoading(true);
 
         try {
+            const trimmedEmail = email.trim();
+            const trimmedPassword = password.trim();
+
             if (activeTab === 'login') {
-                const res = await api.login(email, password);
+                const res = await api.login(trimmedEmail, trimmedPassword);
                 localStorage.setItem('access_token', res.access_token);
                 navigate('/dashboard');
             } else {
                 // Register the user
-                await api.register(email, password, goal);
+                await api.register(trimmedEmail, trimmedPassword, goal);
 
                 // Automatically log them in after successful registration
-                const res = await api.login(email, password);
+                const res = await api.login(trimmedEmail, trimmedPassword);
                 localStorage.setItem('access_token', res.access_token);
 
                 // Redirect to dashboard
@@ -81,7 +101,7 @@ export default function AuthCard() {
                         <div className="input-wrapper">
                             <span className="material-symbols-outlined input-icon">mail</span>
                             <input
-                                className="form-input"
+                                className="form-input !pl-14"
                                 type="email"
                                 placeholder="name@company.com"
                                 value={email}
@@ -98,7 +118,7 @@ export default function AuthCard() {
                         <div className="input-wrapper">
                             <span className="material-symbols-outlined input-icon">lock</span>
                             <input
-                                className="form-input"
+                                className="form-input !pl-14"
                                 type="password"
                                 placeholder="••••••••"
                                 value={password}
@@ -112,27 +132,25 @@ export default function AuthCard() {
                     {activeTab === 'register' && (
                         <div className="goal-section">
                             <div className="input-group">
-                                <label className="input-label" style={{ marginBottom: 0 }}>Primary Health Goal</label>
-                                <p className="goal-desc">Select one to customize your lens algorithms.</p>
+                                <label className="input-label" style={{ marginBottom: 0 }}>Choose Your Nutrition Lens</label>
+                                <p className="goal-desc">Select a specialized algorithm for your health strategy.</p>
                             </div>
 
                             <div className="goal-grid">
-                                {['Weight Loss', 'Muscle Gain', 'Better Digestion', 'Allergies'].map((g) => (
-                                    <label key={g} className="goal-card-label group">
+                                {systemLenses.map((l) => (
+                                    <label key={l.name} className="goal-card-label group">
                                         <input
                                             type="radio"
                                             name="goal"
                                             className="goal-card-input"
-                                            checked={goal === g}
-                                            onChange={() => setGoal(g)}
+                                            checked={goal === l.name}
+                                            onChange={() => setGoal(l.name)}
                                         />
                                         <div className="goal-card">
                                             <span className="material-symbols-outlined goal-icon">
-                                                {g === 'Weight Loss' ? 'monitor_weight' :
-                                                    g === 'Muscle Gain' ? 'fitness_center' :
-                                                        g === 'Better Digestion' ? 'eco' : 'medical_services'}
+                                                {l.icon}
                                             </span>
-                                            <span className="goal-text">{g}</span>
+                                            <span className="goal-text">{l.name}</span>
                                         </div>
                                     </label>
                                 ))}

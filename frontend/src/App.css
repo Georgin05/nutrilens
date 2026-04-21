@@ -1,4 +1,4 @@
-﻿/* Nav & Layout Base Utilities */
+/* Nav & Layout Base Utilities */
 .container {
   max-width: 1280px;
   margin: 0 auto;
@@ -604,16 +604,23 @@ section {
 
 .input-icon {
   position: absolute;
-  left: 0.75rem;
+  left: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-tertiary);
   font-size: 1.25rem;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  padding: 0.75rem 1rem 0.75rem 3rem;
   border-radius: 0.5rem;
   border: 1px solid var(--input-border);
   background-color: var(--input-bg);

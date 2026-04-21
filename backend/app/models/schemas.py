@@ -28,7 +28,17 @@ class UserResponse(BaseModel):
     conditions: Optional[str] = None
     medications: Optional[str] = None
     medical_history: Optional[str] = None
+    activity_level: Optional[float] = None
+    active_lens_id: Optional[int] = None
     
+    model_config = ConfigDict(from_attributes=True)
+
+class UserNutritionProfileResponse(BaseModel):
+    user_id: int
+    bmr: float
+    tdee: float
+    last_calculated: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):
@@ -41,18 +51,26 @@ class UserProfileUpdate(BaseModel):
     age_years: Optional[int] = None
     gender: Optional[str] = None
     health_goal: Optional[str] = None
+    active_lens_id: Optional[int] = None
     diet_type: Optional[str] = None
     allergies: Optional[str] = None
     intolerances: Optional[str] = None
     conditions: Optional[str] = None
     medications: Optional[str] = None
     medical_history: Optional[str] = None
+    activity_level: Optional[float] = None
 
 # ---- Phase 3 Schemas ----
 
 class DailyLogCreate(BaseModel):
-    barcode: str
-    serving_size: float
+    barcode: Optional[str] = None
+    product_name: Optional[str] = None
+    serving_size: float = 1.0
+    calories: Optional[float] = 0.0
+    protein_g: Optional[float] = 0.0
+    carbs_g: Optional[float] = 0.0
+    fat_g: Optional[float] = 0.0
+    meal_type: Optional[str] = None
 
 class DailyLogResponse(BaseModel):
     id: int
@@ -64,6 +82,7 @@ class DailyLogResponse(BaseModel):
     protein_g: float
     carbs_g: float
     fat_g: float
+    meal_type: Optional[str] = None
     timestamp: datetime
     
     model_config = ConfigDict(from_attributes=True)
@@ -80,17 +99,27 @@ class DailySummaryResponse(BaseModel):
 
 class ShoppingListCreate(BaseModel):
     item_name: str
+    category: str = "Other"
+    quantity: float = 1.0
+    unit: str = "unit"
     is_healthy_swap: bool = False
+    price: float = 0.0
 
 class ShoppingListUpdate(BaseModel):
     item_name: Optional[str] = None
     status: Optional[str] = None
+    quantity: Optional[float] = None
+    category: Optional[str] = None
 
 class ShoppingListResponse(BaseModel):
     id: int
     user_id: int
     item_name: str
+    category: str
+    quantity: float
+    unit: str
     is_healthy_swap: bool
+    price: float
     status: str
     
     model_config = ConfigDict(from_attributes=True)
@@ -100,9 +129,11 @@ class ShoppingListResponse(BaseModel):
 class CustomLensCreate(BaseModel):
     name: str
     theme_color: str
-    calorie_limit: Optional[float] = None
-    min_protein_g: Optional[float] = None
-    max_sugar_g: Optional[float] = None
+    calorie_modifier: float = 0.0
+    protein_ratio: float = 0.3
+    carb_ratio: float = 0.4
+    fat_ratio: float = 0.3
+    sugar_limit_g: Optional[float] = None
     flagged_ingredients: Optional[List[str]] = None
 
 class CustomLensResponse(BaseModel):
@@ -110,9 +141,12 @@ class CustomLensResponse(BaseModel):
     user_id: int
     name: str
     theme_color: str
-    calorie_limit: Optional[float] = None
-    min_protein_g: Optional[float] = None
-    max_sugar_g: Optional[float] = None
+    icon: Optional[str] = None
+    calorie_modifier: float
+    protein_ratio: float
+    carb_ratio: float
+    fat_ratio: float
+    sugar_limit_g: Optional[float] = None
     flagged_ingredients: Optional[List[str]] = None
     
     model_config = ConfigDict(from_attributes=True)
@@ -135,4 +169,63 @@ class SmartCartResponse(BaseModel):
     cart_json: str
     created_at: datetime
     
+    model_config = ConfigDict(from_attributes=True)
+# ---- Phase 7 Schemas (Meals) ----
+
+class MealTemplateCreate(BaseModel):
+    name: str
+    meal_type: str
+    food_items_json: str
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+    image_url: Optional[str] = None
+    tags_json: Optional[str] = "[]"
+    estimated_cost: float = 0.0
+
+class MealTemplateResponse(BaseModel):
+    id: int
+    user_id: Optional[int] = None
+    name: str
+    meal_type: str
+    food_items_json: str
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+    image_url: Optional[str] = None
+    tags_json: Optional[str] = "[]"
+    estimated_cost: float = 0.0
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class MealPlanCreate(BaseModel):
+    day_of_week: str
+    meal_type: str
+    meal_template_id: int
+
+class MealPlanResponse(BaseModel):
+    id: int
+    user_id: int
+    day_of_week: str
+    meal_type: str
+    meal_template_id: int
+    created_at: datetime
+    meal_template: Optional[MealTemplateResponse] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class IngredientPriceCreate(BaseModel):
+    name: str
+    price: float
+    unit: str = "unit"
+
+class IngredientPriceResponse(BaseModel):
+    id: int
+    name: str
+    price: float
+    unit: str
+    last_updated: datetime
+
     model_config = ConfigDict(from_attributes=True)

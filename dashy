@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NutriLens - Advanced Nutrition Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec80",
+                        "amber-accent": "#f59e0b",
+                        "charcoal-soft": "#1e293b",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102219",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                    boxShadow: {
+                        'clay': 'inset 2px 2px 4px rgba(255,255,255,0.1), 8px 8px 16px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(0,0,0,0.2)',
+                        'clay-primary': 'inset 4px 4px 8px rgba(255,255,255,0.3), 10px 10px 20px rgba(19, 236, 128, 0.2)',
+                        'clay-inner': 'inset 6px 6px 12px rgba(0,0,0,0.3), inset -6px -6px 12px rgba(255,255,255,0.05)'
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .clay-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .macro-ring {
+            background: conic-gradient(var(--tw-gradient-from) var(--percentage), transparent 0);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-300">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-200 dark:border-primary/10 bg-white/50 dark:bg-background-dark flex flex-col justify-between p-4">
+<div class="space-y-6">
+<div class="flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-clay-primary">
+<span class="material-symbols-outlined text-background-dark font-bold">biotech</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-primary">NutriLens</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-400">Precision Health</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-background-dark font-semibold shadow-clay" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 dark:hover:bg-primary/10 transition-all text-slate-500 dark:text-slate-400 hover:text-primary" href="#">
+<span class="material-symbols-outlined">restaurant</span>
+<span>Meal Plans</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 dark:hover:bg-primary/10 transition-all text-slate-500 dark:text-slate-400 hover:text-primary" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Biometrics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 dark:hover:bg-primary/10 transition-all text-slate-500 dark:text-slate-400 hover:text-primary" href="#">
+<span class="material-symbols-outlined">communities</span>
+<span>AI Coach</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 dark:hover:bg-primary/10 transition-all text-slate-500 dark:text-slate-400 hover:text-primary" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+</div>
+<div class="p-4 rounded-2xl bg-primary/10 border border-primary/20 space-y-3 shadow-clay-inner">
+<p class="text-xs font-medium text-primary">Pro Plan Active</p>
+<div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+</div>
+<p class="text-[10px] text-slate-400">Next billing: Oct 24, 2023</p>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-background-dark p-8">
+<!-- Top Header -->
+<header class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-3xl font-black text-slate-900 dark:text-slate-100">Daily Nutrition</h2>
+<p class="text-slate-500 dark:text-slate-400">Monitoring your metabolic health goals</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-xl bg-white dark:bg-charcoal-soft shadow-clay text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center gap-3 bg-primary px-6 py-2.5 rounded-xl text-background-dark font-bold shadow-clay hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span>
+<span>Log Meal</span>
+</button>
+</div>
+</header>
+<div class="grid grid-cols-12 gap-8">
+<!-- Main Dashboard Column -->
+<div class="col-span-12 lg:col-span-8 space-y-8">
+<!-- Macro Claymorphic Summary -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Calories Large Ring -->
+<div class="md:col-span-1 clay-card p-6 rounded-2xl shadow-clay flex flex-col items-center justify-center text-center">
+<div class="relative w-32 h-32 rounded-full shadow-clay-inner flex items-center justify-center mb-4">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-slate-700/30" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364.4" stroke-dashoffset="60" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-bold">1,840</span>
+<span class="text-[10px] uppercase text-slate-400">kcal left</span>
+</div>
+</div>
+<h3 class="font-bold text-slate-200">Total Calories</h3>
+<p class="text-sm text-primary">82% of target</p>
+</div>
+<!-- Macro Bars -->
+<div class="md:col-span-2 clay-card p-6 rounded-2xl shadow-clay grid grid-cols-3 gap-4">
+<!-- Protein -->
+<div class="flex flex-col gap-3">
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Protein</p>
+<div class="flex-1 w-full bg-slate-800/50 rounded-2xl shadow-clay-inner flex flex-col justify-end p-1">
+<div class="bg-primary rounded-xl shadow-clay w-full" style="height: 75%"></div>
+</div>
+<div class="text-center">
+<p class="font-bold text-slate-100">142g</p>
+<p class="text-[10px] text-primary">Target: 160g</p>
+</div>
+</div>
+<!-- Carbs -->
+<div class="flex flex-col gap-3">
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Carbs</p>
+<div class="flex-1 w-full bg-slate-800/50 rounded-2xl shadow-clay-inner flex flex-col justify-end p-1">
+<div class="bg-amber-accent rounded-xl shadow-clay w-full" style="height: 45%"></div>
+</div>
+<div class="text-center">
+<p class="font-bold text-slate-100">210g</p>
+<p class="text-[10px] text-amber-accent">Target: 250g</p>
+</div>
+</div>
+<!-- Fats -->
+<div class="flex flex-col gap-3">
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Fats</p>
+<div class="flex-1 w-full bg-slate-800/50 rounded-2xl shadow-clay-inner flex flex-col justify-end p-1">
+<div class="bg-emerald-400/60 rounded-xl shadow-clay w-full" style="height: 60%"></div>
+</div>
+<div class="text-center">
+<p class="font-bold text-slate-100">62g</p>
+<p class="text-[10px] text-emerald-400">Target: 75g</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Food Log Table -->
+<div class="clay-card rounded-2xl shadow-clay overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-700/50 flex items-center justify-between">
+<h3 class="text-lg font-bold">Today's Food Log</h3>
+<button class="text-sm text-primary hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-800/30 text-slate-400 text-xs uppercase tracking-widest">
+<tr>
+<th class="px-6 py-3 font-semibold">Meal Item</th>
+<th class="px-6 py-3 font-semibold">Portion</th>
+<th class="px-6 py-3 font-semibold">Macros (P/C/F)</th>
+<th class="px-6 py-3 font-semibold text-right">Calories</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-700/50 text-sm">
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-700 overflow-hidden shadow-clay">
+<img class="w-full h-full object-cover" data-alt="Avocado toast on whole grain bread" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIzJMfaBtTRULTdwaAHbvnUyq4EPupC2tvNtZKFisMQmB3wgcxpSPOoe6_WM98tt_3Weo2VAUzbaam4lbxXk64GsmYDy385nOrTh4wzOVEyBxqJDMxPthEgeUp5j9p3v4FmocyZuFMYEMfDCO-n9VDZgfBtZVtiVNvTb8a40-IVFBviq3sQv3zX0kliZvxLWF1aktK_okIBEQX83rSrFWbXpMdyfJMCGare-_yDJZRkv9REN7W__2MFovoSu5WRwTBntN8Ed_8W9ri"/>
+</div>
+<div>
+<p class="font-bold text-slate-200">Avocado Toast</p>
+<p class="text-xs text-slate-500">Breakfast • 08:30 AM</p>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-400">2 slices</td>
+<td class="px-6 py-4">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold">12g P</span>
+<span class="px-2 py-0.5 rounded bg-amber-accent/10 text-amber-accent text-[10px] font-bold">34g C</span>
+<span class="px-2 py-0.5 rounded bg-emerald-400/10 text-emerald-400 text-[10px] font-bold">18g F</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right font-bold text-slate-200">380 kcal</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-700 overflow-hidden shadow-clay">
+<img class="w-full h-full object-cover" data-alt="Grilled chicken salad with nuts" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVKlSrI034xWm3r-FVqYmCJ9f14D9Uoo-q4PwZk_lMaK_CjuLAoYw6Z4z2nJfxCq4XosxH8bTaidRY3jSHr3ezPzlyfj5IWn5nOeS-PCoa2QwSxhcCszndasWpnmBa2n1voFKLY6Jy8njyIMFTJVgJjIaToUye-u6nSkpv_ILYHbhKXRoEf5dpUCvpjoFBfpNeoC5j609HR-RNalFI99YejTNABw69BRTx4wc3Z7gJqu88KE7R249JaaW3vb0bEW-XlbIIXiQfFj1Q"/>
+</div>
+<div>
+<p class="font-bold text-slate-200">Grilled Chicken Salad</p>
+<p class="text-xs text-slate-500">Lunch • 12:45 PM</p>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-400">450g</td>
+<td class="px-6 py-4">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold">45g P</span>
+<span class="px-2 py-0.5 rounded bg-amber-accent/10 text-amber-accent text-[10px] font-bold">12g C</span>
+<span class="px-2 py-0.5 rounded bg-emerald-400/10 text-emerald-400 text-[10px] font-bold">14g F</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right font-bold text-slate-200">520 kcal</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-700 overflow-hidden shadow-clay">
+<img class="w-full h-full object-cover" data-alt="Berry protein smoothie" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTJc4_oUrgT1-UrB9cC-MrbOGWNO6g4iE4jtemO2ScAs02H-kBBsRFMeT6L0YrE8xc7RgIG68KYrSdIdvrx6TBk_K8pnMMajCofQvJoLfhemSJwcmgV1IU5TN3KF7OeuBKOlEbS8JpsfGq_62TbImx2-9b-zmQTyWBxAv4mOcWPPw_CRQoFVp9WUZPrOGknVkXOHCMhZL2tJjusYegdA6CvT99Q-pkk_nIxmWU8IL0ohMK5BeJF3QJrZz4HjIyybPwocFsyCPv2vSZ"/>
+</div>
+<div>
+<p class="font-bold text-slate-200">Berry Protein Shake</p>
+<p class="text-xs text-slate-500">Snack • 03:20 PM</p>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-400">300ml</td>
+<td class="px-6 py-4">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold">28g P</span>
+<span class="px-2 py-0.5 rounded bg-amber-accent/10 text-amber-accent text-[10px] font-bold">20g C</span>
+<span class="px-2 py-0.5 rounded bg-emerald-400/10 text-emerald-400 text-[10px] font-bold">4g F</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right font-bold text-slate-200">220 kcal</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Side Widgets Column -->
+<div class="col-span-12 lg:col-span-4 space-y-8">
+<!-- AI Insights -->
+<div class="clay-card p-6 rounded-2xl shadow-clay border-l-4 border-amber-accent">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-amber-accent">bolt</span>
+<h3 class="text-lg font-bold">AI Insights</h3>
+</div>
+<div class="space-y-4">
+<div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/50">
+<p class="text-sm font-medium text-slate-200">Metabolic Peak</p>
+<p class="text-xs text-slate-400 mt-1">Your fat oxidation is 12% higher today than your average. Ideal time for a cardio session.</p>
+</div>
+<div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/50">
+<p class="text-sm font-medium text-slate-200">Protein Gap</p>
+<p class="text-xs text-slate-400 mt-1">You need 18g more protein for dinner to hit your lean muscle growth target.</p>
+</div>
+<button class="w-full py-2 bg-amber-accent text-background-dark font-bold rounded-xl shadow-clay-inner hover:opacity-90 transition-all text-sm">
+                                Full Analysis
+                            </button>
+</div>
+</div>
+<!-- Calendar History Widget -->
+<div class="clay-card p-6 rounded-2xl shadow-clay">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold">History</h3>
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-slate-500 cursor-pointer">chevron_left</span>
+<span class="material-symbols-outlined text-slate-500 cursor-pointer">chevron_right</span>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-500 mb-2">
+<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+</div>
+<div class="grid grid-cols-7 gap-2">
+<div class="aspect-square rounded-lg bg-primary/20 flex items-center justify-center text-primary font-bold text-xs shadow-clay-inner border border-primary/30">12</div>
+<div class="aspect-square rounded-lg bg-primary/40 flex items-center justify-center text-primary font-bold text-xs shadow-clay-inner border border-primary/30">13</div>
+<div class="aspect-square rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shadow-clay-inner border border-primary/30">14</div>
+<div class="aspect-square rounded-lg bg-amber-accent/20 flex items-center justify-center text-amber-accent font-bold text-xs shadow-clay-inner border border-amber-accent/30">15</div>
+<div class="aspect-square rounded-lg bg-primary/60 flex items-center justify-center text-background-dark font-bold text-xs shadow-clay">16</div>
+<div class="aspect-square rounded-lg bg-primary/20 flex items-center justify-center text-primary font-bold text-xs shadow-clay-inner">17</div>
+<div class="aspect-square rounded-lg bg-slate-800 flex items-center justify-center text-slate-500 font-bold text-xs">18</div>
+<!-- Future dates -->
+<div class="aspect-square rounded-lg flex items-center justify-center text-slate-600 font-bold text-xs">19</div>
+<div class="aspect-square rounded-lg flex items-center justify-center text-slate-600 font-bold text-xs">20</div>
+<div class="aspect-square rounded-lg flex items-center justify-center text-slate-600 font-bold text-xs">21</div>
+</div>
+<div class="mt-6 flex items-center gap-4 pt-4 border-t border-slate-700/50">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(19,236,128,0.5)]"></div>
+<span class="text-[10px] text-slate-400">On Target</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-amber-accent shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div>
+<span class="text-[10px] text-slate-400">Deviation</span>
+</div>
+</div>
+</div>
+<!-- Water Intake Claymorphic Card -->
+<div class="clay-card p-6 rounded-2xl shadow-clay bg-gradient-to-br from-charcoal-soft to-slate-800">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="text-sm font-bold text-slate-400 uppercase">Hydration</h4>
+<p class="text-2xl font-black text-slate-100">2.4 / 3.5 L</p>
+</div>
+<span class="material-symbols-outlined text-sky-400 text-3xl">water_drop</span>
+</div>
+<div class="flex gap-2">
+<div class="flex-1 h-3 rounded-full bg-slate-900 shadow-clay-inner overflow-hidden">
+<div class="h-full bg-sky-400 rounded-full" style="width: 68%"></div>
+</div>
+</div>
+<div class="mt-4 flex gap-2 overflow-x-auto pb-2">
+<button class="flex-shrink-0 px-3 py-1 rounded-full bg-sky-400/20 text-sky-400 text-xs font-bold border border-sky-400/30">+ 250ml</button>
+<button class="flex-shrink-0 px-3 py-1 rounded-full bg-sky-400/20 text-sky-400 text-xs font-bold border border-sky-400/30">+ 500ml</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
