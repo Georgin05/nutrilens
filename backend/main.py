@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import create_db_and_tables, engine
-from app.api.routes import products, users, logs, analytics, inventory, dashboard, lenses, smart_cart, meals, ai_buddy, admin
+from app.api.routes import products, users, logs, analytics, inventory, dashboard, lenses, smart_cart, meals, ai_buddy, admin, ingredients
 from app.models.models import User, CustomLens, MealTemplate
 from sqlmodel import Session, select
 import json
@@ -116,6 +116,7 @@ app.include_router(smart_cart.router, prefix="/smart-cart", tags=["Smart Cart"])
 app.include_router(meals.router)
 app.include_router(ai_buddy.router, prefix="/ai-buddy", tags=["AI Buddy"])
 app.include_router(admin.router)
+app.include_router(ingredients.router)
 
 @app.get("/")
 def read_root():

@@ -331,6 +331,54 @@ const api = {
         return response.data;
     },
 
+    getMealLibrary: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/meals/library`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    addMealToPlan: async (planData) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/meals/plan`, planData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    removeMealFromPlan: async (planId) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.delete(`${API_URL}/meals/plan/${planId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    repeatMealForWeek: async (planId) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/meals/plan/${planId}/repeat`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    cloneDayToAll: async (sourceDay) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/meals/plan/clone-day`, { source_day: sourceDay }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    autoFillDay: async (dayOfWeek) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/meals/plan/${dayOfWeek}/smart-fill`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
     getMealGroceries: async () => {
         const token = localStorage.getItem('access_token');
         const response = await axios.get(`${API_URL}/meals/groceries`, {
@@ -472,6 +520,57 @@ const api = {
     post: async (endpoint, data) => {
         const token = localStorage.getItem('access_token');
         const response = await axios.post(`${API_URL}${endpoint}`, data, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    // --- Meal Template Creation ---
+    createMealTemplate: async (templateData, isAdmin = false) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/meals/templates?is_admin=${isAdmin}`, templateData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    // --- Grocery Price Endpoints ---
+    updateGroceryItemPrice: async (itemId, price) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.patch(`${API_URL}/smart-cart/item/${itemId}/price`, { price }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    // --- Ingredient Price Endpoints (Admin) ---
+    getIngredientPrices: async () => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/ingredients/prices`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    searchIngredientPrice: async (name) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`${API_URL}/ingredients/prices/search?name=${name}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    updateIngredientPrice: async (priceData) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`${API_URL}/ingredients/prices`, priceData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    deleteIngredientPrice: async (priceId) => {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.delete(`${API_URL}/ingredients/prices/${priceId}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;

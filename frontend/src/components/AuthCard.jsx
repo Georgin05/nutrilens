@@ -17,9 +17,10 @@ export default function AuthCard() {
         const fetchLenses = async () => {
             try {
                 const lenses = await api.getSystemLenses();
-                setSystemLenses(lenses);
-                if (lenses.length > 0) {
-                    setGoal(lenses[0].name);
+                const filteredLenses = lenses.filter(l => !l.name.toLowerCase().includes('athlete')).slice(0, 4);
+                setSystemLenses(filteredLenses);
+                if (filteredLenses.length > 0) {
+                    setGoal(filteredLenses[0].name);
                 }
             } catch (err) {
                 console.error("Failed to load system lenses", err);

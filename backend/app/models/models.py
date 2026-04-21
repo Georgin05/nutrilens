@@ -102,6 +102,7 @@ class SmartCart(SQLModel, table=True):
 class MealTemplate(SQLModel, table=True):
     __tablename__ = "meal_templates"
     id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     name: str
     meal_type: str # 'Breakfast', 'Lunch', 'Dinner', 'Snack'
     food_items_json: str # JSON list of items
@@ -110,8 +111,18 @@ class MealTemplate(SQLModel, table=True):
     carbs_g: float
     fat_g: float
     image_url: Optional[str] = None
+    tags_json: str = Field(default="[]")
+    estimated_cost: float = Field(default=0.0)
     
     plans: List["MealPlan"] = Relationship(back_populates="meal_template")
+
+class IngredientPrice(SQLModel, table=True):
+    __tablename__ = "ingredient_prices"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, index=True)
+    price: float
+    unit: str = Field(default="unit") # e.g. "kg", "pack", "item"
+    last_updated: datetime = Field(default_factory=datetime.utcnow)
 
 class AIChatHistory(SQLModel, table=True):
     __tablename__ = "ai_chat_history"

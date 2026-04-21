@@ -6,21 +6,35 @@ export default function LensGalleryPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const [customLenses, setCustomLenses] = useState([]);
+    const [systemLenses, setSystemLenses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeLensId, setActiveLensId] = useState(localStorage.getItem('activeLensId') || 'muscle_build');
+    const [activeLensId, setActiveLensId] = useState(null);
     const [selectedLensForPopup, setSelectedLensForPopup] = useState(null);
     
     useEffect(() => {
-        // Fetch custom lenses from API
-        api.getCustomLenses().then(data => {
-            if (data && data.length) {
-                setCustomLenses(data);
+        const loadLenses = async () => {
+            try {
+                // Fetch both system and custom lenses
+                const [sysData, custData, profileData] = await Promise.all([
+                    api.getSystemLenses(),
+                    api.getCustomLenses(),
+                    api.getProfile()
+                ]);
                 
-                // Check if we just created a lens
-                if (location.state?.newLensPopupId) {
-                    const createdLens = data.find(l => l.id.toString() === location.state.newLensPopupId.toString());
+                if (sysData) setSystemLenses(sysData);
+                if (custData) setCustomLenses(custData);
+                
+                // Set active lens from actual user profile, fallback to the first system lens ID
+                if (profileData && profileData.active_lens_id) {
+                    setActiveLensId(profileData.active_lens_id.toString());
+                } else if (sysData && sysData.length > 0) {
+                    setActiveLensId(sysData[0].id.toString());
+                }
+                
+                // Handle newly created lens popup (if any)
+                if (custData && location.state?.newLensPopupId) {
+                    const createdLens = custData.find(l => l.id.toString() === location.state.newLensPopupId.toString());
                     if (createdLens) {
-                        // Map it to the format used in allLenses
                         let colorClass = { bg: 'bg-primary', text: 'text-primary' };
                         if (createdLens.theme_color === 'Blue') colorClass = { bg: 'bg-blue-400', text: 'text-blue-400' };
                         if (createdLens.theme_color === 'Purple') colorClass = { bg: 'bg-purple-400', text: 'text-purple-400' };
@@ -29,38 +43,53 @@ export default function LensGalleryPage() {
                             id: createdLens.id.toString(),
                             name: createdLens.name,
                             desc: 'Custom user-defined logic boundaries.',
-                            icon: 'lens',
+                            icon: createdLens.icon || 'lens',
                             colorClass: colorClass,
                             isCustom: true,
                             limits: { calories: createdLens.calorie_limit, protein: createdLens.min_protein_g, sugar: createdLens.max_sugar_g },
                             flags: createdLens.flagged_ingredients
                         });
-                        
-                        // Clear state so it doesn't pop up again on refresh
                         window.history.replaceState({}, document.title);
                     }
                 }
+            } catch (err) {
+                console.error("Error fetching lenses", err);
+            } finally {
+                setIsLoading(false);
             }
-        }).catch(err => console.error("Error fetching custom lenses", err))
-          .finally(() => setIsLoading(false));
+        };
+        loadLenses();
     }, [location]);
 
-    const handleSelectLens = (id) => {
-        setActiveLensId(id);
-        localStorage.setItem('activeLensId', id);
-        setSelectedLensForPopup(null);
+    const handleSelectLens = async (id) => {
+        try {
+            await api.updateProfile({ active_lens_id: parseInt(id) });
+            setActiveLensId(id.toString());
+            setSelectedLensForPopup(null);
+        } catch (error) {
+            console.error("Failed to update active lens:", error);
+            alert("Failed to update active lens.");
+        }
     };
 
-    const PRESET_LENSES = [
-        { id: 'muscle_build', name: 'Muscle Build', desc: 'Protein maximization and calorie surplus focus.', icon: 'fitness_center', colorClass: {bg: 'bg-primary', text: 'text-primary'} },
-        { id: 'fat_loss', name: 'Fat Loss', desc: 'Caloric deficit and low sugar optimization.', icon: 'monitor_weight', colorClass: {bg: 'primary', text: 'text-primary'} },
-        { id: 'diabetes_friendly', name: 'Diabetes Friendly', desc: 'Glycemic index and low sugar focus.', icon: 'blood_pressure', colorClass: {bg: 'bg-blue-400', text: 'text-blue-400'} },
-        { id: 'athlete_performance', name: 'Athlete Performance', desc: 'Carb-loading and electrolyte optimization.', icon: 'sprint', colorClass: {bg: 'bg-amber-custom', text: 'text-amber-custom'} },
-        { id: 'clean_eating', name: 'Clean Eating', desc: 'Avoidance of ultra-processed artificial ingredients.', icon: 'eco', colorClass: {bg: 'bg-emerald-custom', text: 'text-emerald-custom'} }
-    ];
-
     const allLenses = [
-        ...PRESET_LENSES,
+        ...systemLenses.map(sl => {
+            let colorClass = { bg: 'bg-primary', text: 'text-primary' };
+            if (sl.theme_color === 'blue') colorClass = { bg: 'bg-blue-400', text: 'text-blue-400' };
+            if (sl.theme_color === 'orange') colorClass = { bg: 'bg-amber-custom', text: 'text-amber-custom' };
+            if (sl.theme_color === 'red') colorClass = { bg: 'bg-red-400', text: 'text-red-400' };
+            
+            return {
+                id: sl.id.toString(),
+                name: sl.name,
+                desc: 'Standard preset logic boundaries.',
+                icon: sl.icon || 'monitor_weight',
+                colorClass: colorClass,
+                isCustom: false,
+                limits: { calories: sl.calorie_modifier, protein: sl.protein_ratio * 100, sugar: sl.sugar_limit_g },
+                flags: sl.flagged_ingredients
+            };
+        }),
         ...customLenses.map(cl => {
             let colorClass = { bg: 'bg-primary', text: 'text-primary' };
             if (cl.theme_color === 'Blue') colorClass = { bg: 'bg-blue-400', text: 'text-blue-400' };
@@ -70,10 +99,10 @@ export default function LensGalleryPage() {
                 id: cl.id.toString(),
                 name: cl.name,
                 desc: 'Custom user-defined logic boundaries.',
-                icon: 'lens',
+                icon: cl.icon || 'lens',
                 colorClass: colorClass,
                 isCustom: true,
-                limits: { calories: cl.calorie_limit, protein: cl.min_protein_g, sugar: cl.max_sugar_g },
+                limits: { calories: cl.calorie_modifier, protein: cl.protein_ratio * 100, sugar: cl.sugar_limit_g },
                 flags: cl.flagged_ingredients
             };
         })

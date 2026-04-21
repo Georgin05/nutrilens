@@ -9,7 +9,7 @@ from app.services.lenses import evaluate_food_by_lens
 from app.services.openfoodfacts import fetch_product_info
 import json
 
-router = APIRouter(prefix="/lenses", tags=["Lenses"])
+router = APIRouter()
 
 @router.post("/", response_model=CustomLensResponse)
 def create_custom_lens(lens_in: CustomLensCreate, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):

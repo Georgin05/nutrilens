@@ -29,6 +29,7 @@ class UserResponse(BaseModel):
     medications: Optional[str] = None
     medical_history: Optional[str] = None
     activity_level: Optional[float] = None
+    active_lens_id: Optional[int] = None
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -50,6 +51,7 @@ class UserProfileUpdate(BaseModel):
     age_years: Optional[int] = None
     gender: Optional[str] = None
     health_goal: Optional[str] = None
+    active_lens_id: Optional[int] = None
     diet_type: Optional[str] = None
     allergies: Optional[str] = None
     intolerances: Optional[str] = None
@@ -139,6 +141,7 @@ class CustomLensResponse(BaseModel):
     user_id: int
     name: str
     theme_color: str
+    icon: Optional[str] = None
     calorie_modifier: float
     protein_ratio: float
     carb_ratio: float
@@ -169,8 +172,7 @@ class SmartCartResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 # ---- Phase 7 Schemas (Meals) ----
 
-class MealTemplateResponse(BaseModel):
-    id: int
+class MealTemplateCreate(BaseModel):
     name: str
     meal_type: str
     food_items_json: str
@@ -179,6 +181,22 @@ class MealTemplateResponse(BaseModel):
     carbs_g: float
     fat_g: float
     image_url: Optional[str] = None
+    tags_json: Optional[str] = "[]"
+    estimated_cost: float = 0.0
+
+class MealTemplateResponse(BaseModel):
+    id: int
+    user_id: Optional[int] = None
+    name: str
+    meal_type: str
+    food_items_json: str
+    calories: float
+    protein_g: float
+    carbs_g: float
+    fat_g: float
+    image_url: Optional[str] = None
+    tags_json: Optional[str] = "[]"
+    estimated_cost: float = 0.0
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -196,4 +214,18 @@ class MealPlanResponse(BaseModel):
     created_at: datetime
     meal_template: Optional[MealTemplateResponse] = None
     
+    model_config = ConfigDict(from_attributes=True)
+
+class IngredientPriceCreate(BaseModel):
+    name: str
+    price: float
+    unit: str = "unit"
+
+class IngredientPriceResponse(BaseModel):
+    id: int
+    name: str
+    price: float
+    unit: str
+    last_updated: datetime
+
     model_config = ConfigDict(from_attributes=True)

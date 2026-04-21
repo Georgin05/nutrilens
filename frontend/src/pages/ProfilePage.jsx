@@ -46,16 +46,17 @@ export default function ProfilePage() {
                     health_goal: data.health_goal || ''
                 });
 
-                // Get Active Lens Name
-                const activeId = localStorage.getItem('activeLensId');
+                // Get Active Lens Name dynamically
+                const activeId = data.active_lens_id;
                 if (activeId) {
-                    if (['muscle_build', 'fat_loss', 'diabetes_friendly', 'athlete_performance', 'clean_eating'].includes(activeId)) {
-                        setActiveLensName(activeId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
-                    } else {
-                        // It's a custom lens ID, try to fetch its name
-                        const customLenses = await api.getCustomLenses();
-                        const myLens = customLenses.find(l => l.id.toString() === activeId.toString());
-                        if (myLens) setActiveLensName(myLens.name);
+                    const [systemLenses, customLenses] = await Promise.all([
+                        api.getSystemLenses(),
+                        api.getCustomLenses()
+                    ]);
+                    const allLenses = [...(systemLenses||[]), ...(customLenses||[])];
+                    const activeLens = allLenses.find(l => l.id.toString() === activeId.toString());
+                    if (activeLens) {
+                        setActiveLensName(activeLens.name);
                     }
                 }
             } catch (error) {
