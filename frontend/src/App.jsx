@@ -43,6 +43,7 @@ import AdminUsers from './pages/AdminUsers';
 import AdminAiInsights from './pages/AdminAiInsights';
 import AdminLenses from './pages/AdminLenses';
 import AdminFoodDatabase from './pages/AdminFoodDatabase';
+import AdminLayout from './components/AdminLayout';
 
 // --- Global Theme & Utilities ---
 const useTheme = () => {
@@ -197,11 +198,11 @@ export default function App() {
         <Route path="/meals-cart/planner" element={<Navigate to="/meals-cart" replace />} />
         <Route path="/meal-cart-setup" element={<MealCartSetup />} />
         <Route path="/admin" element={<Navigate to="/admin/analytics" replace />} />
-        <Route path="/admin/analytics" element={<AdminAnalytics />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/admin/ai" element={<AdminAiInsights />} />
-        <Route path="/admin/lenses" element={<AdminLenses />} />
-        <Route path="/admin/products" element={<AdminFoodDatabase />} />
+        <Route path="/admin/analytics" element={<AdminLayout><AdminAnalytics /></AdminLayout>} />
+        <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
+        <Route path="/admin/ai" element={<AdminLayout><AdminAiInsights /></AdminLayout>} />
+        <Route path="/admin/lenses" element={<AdminLayout><AdminLenses /></AdminLayout>} />
+        <Route path="/admin/products" element={<AdminLayout><AdminFoodDatabase /></AdminLayout>} />
       </Routes>
     </div>
   );

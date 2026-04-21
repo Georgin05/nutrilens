@@ -41,7 +41,13 @@ export default function AuthCard() {
             if (activeTab === 'login') {
                 const res = await api.login(trimmedEmail, trimmedPassword);
                 localStorage.setItem('access_token', res.access_token);
-                navigate('/dashboard');
+                localStorage.setItem('user_role', res.role);
+                
+                if (res.role === 'admin') {
+                    navigate('/admin/analytics');
+                } else {
+                    navigate('/dashboard');
+                }
             } else {
                 // Register the user
                 await api.register(trimmedEmail, trimmedPassword, goal);
@@ -49,9 +55,13 @@ export default function AuthCard() {
                 // Automatically log them in after successful registration
                 const res = await api.login(trimmedEmail, trimmedPassword);
                 localStorage.setItem('access_token', res.access_token);
+                localStorage.setItem('user_role', res.role);
 
-                // Redirect to dashboard
-                navigate('/dashboard');
+                if (res.role === 'admin') {
+                    navigate('/admin/analytics');
+                } else {
+                    navigate('/dashboard');
+                }
             }
         } catch (err) {
             // Display an elegant error string based on FastAPI return format if available

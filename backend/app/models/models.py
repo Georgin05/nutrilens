@@ -20,6 +20,7 @@ class User(SQLModel, table=True):
     medical_history: Optional[str] = None
     activity_level: Optional[float] = Field(default=1.2) # Multiplier: 1.2 (Sedentary) to 1.9 (Very Active)
     active_lens_id: Optional[int] = Field(default=None, foreign_key="custom_lenses.id")
+    role: str = Field(default="user")
 
 class UserNutritionProfile(SQLModel, table=True):
     __tablename__ = "user_nutrition_profile"

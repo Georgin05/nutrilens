@@ -1,0 +1,214 @@
+/* NutriLens Admin Design System */
+
+:root {
+  --admin-primary: #3cff90;
+  --admin-primary-glow: rgba(60, 255, 144, 0.4);
+  --admin-bg-dark: #04170e;
+  --admin-surface: #102b1e;
+  --admin-surface-light: #163a2a;
+  --admin-text-main: #f8faf9;
+  --admin-text-muted: #9bb0a3;
+  --admin-border: rgba(60, 255, 144, 0.1);
+  --sidebar-width: 280px;
+  --topbar-height: 80px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-dashboard-root {
+  background-color: var(--admin-bg-dark);
+  color: var(--admin-text-main);
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  display: flex;
+}
+
+/* Glassmorphism Cards */
+.clay-card-admin {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 24px;
+  box-shadow: 
+    inset 2px 2px 4px rgba(60, 255, 144, 0.05),
+    inset -2px -2px 8px rgba(0, 0, 0, 0.3),
+    0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.clay-card-admin:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    inset 2px 2px 4px rgba(60, 255, 144, 0.1),
+    0 20px 40px -15px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(60, 255, 144, 0.05);
+}
+
+/* Sidebar Styling */
+.admin-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--admin-bg-dark);
+  border-right: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  z-index: 100;
+}
+
+.admin-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  margin-bottom: 3rem;
+}
+
+.admin-logo-icon {
+  width: 42px;
+  height: 42px;
+  background: var(--admin-primary-glow);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-primary);
+  box-shadow: 0 0 15px var(--admin-primary-glow);
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  color: var(--admin-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
+  width: 100%;
+  text-decoration: none;
+}
+
+.admin-nav-item:hover {
+  color: var(--admin-primary);
+  background: rgba(60, 255, 144, 0.05);
+}
+
+.admin-nav-item.active {
+  color: var(--admin-primary);
+  background: var(--admin-surface-light);
+  box-shadow: inset 2px 2px 4px rgba(60, 255, 144, 0.1);
+  border: 1px solid var(--admin-border);
+}
+
+/* Topbar Styling */
+.admin-topbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: var(--sidebar-width);
+  height: var(--topbar-height);
+  background: rgba(4, 23, 14, 0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  z-index: 90;
+}
+
+.admin-search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 100px;
+  padding: 0.625rem 1.25rem;
+  width: 400px;
+}
+
+.admin-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--admin-text-main);
+  font-size: 0.875rem;
+  margin-left: 0.75rem;
+  width: 100%;
+}
+
+.admin-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--admin-border);
+}
+
+.admin-profile-info {
+  text-align: right;
+}
+
+.admin-profile-name {
+  font-weight: 800;
+  font-size: 0.875rem;
+  color: var(--admin-text-main);
+}
+
+.admin-profile-role {
+  font-weight: 900;
+  font-size: 0.625rem;
+  color: var(--admin-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.admin-avatar-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--admin-primary);
+  background: var(--admin-surface-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-primary);
+  box-shadow: 0 0 10px var(--admin-primary-glow);
+}
+
+/* Layout Content Wrapper */
+.admin-main-content {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--topbar-height);
+  padding: 2.5rem;
+  flex: 1;
+  min-width: 0; /* Prevents overflow-x in flex items */
+}
+
+/* Global Button Styles */
+.btn-admin-primary {
+  background: var(--admin-primary);
+  color: var(--admin-bg-dark);
+  font-weight: 800;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 15px var(--admin-primary-glow);
+  transition: all 0.2s ease;
+}
+
+.btn-admin-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--admin-primary-glow);
+}

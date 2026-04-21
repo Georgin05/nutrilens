@@ -13,7 +13,7 @@ def lifespan(app: FastAPI):
     # Auto-seed basic requirements for MVP speed
     with Session(engine) as session:
         # Create default user if missing
-        user = session.exec(select(User)).first()
+        user = session.exec(select(User).where(User.email == "test@example.com")).first()
         if not user:
             user = User(
                 email="test@example.com",
@@ -23,11 +23,23 @@ def lifespan(app: FastAPI):
                 height_cm=180.0,
                 age_years=25,
                 gender="male",
-                activity_level=1.2
+                role="user"
             )
             session.add(user)
-            session.commit()
-            session.refresh(user)
+        
+        # Ensure Admin user Georgin exists
+        admin_user = session.exec(select(User).where(User.email == "georgin@gmail.com")).first()
+        if not admin_user:
+            admin_user = User(
+                email="georgin@gmail.com",
+                password_hash="$2b$12$3PXCIrS6Dw/.zYByzYLrUeSDT./dpAvNLnGkGKocXUl2xYM8vLNzu", # password: qwerty
+                health_goal="Clean Eating",
+                role="admin"
+            )
+            session.add(admin_user)
+            
+        session.commit()
+        session.refresh(user) if user else None
         
         # Ensure a lens exists and is linked
         lens = session.exec(select(CustomLens).where(CustomLens.is_system == True)).first()

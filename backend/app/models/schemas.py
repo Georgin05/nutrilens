@@ -30,6 +30,7 @@ class UserResponse(BaseModel):
     medical_history: Optional[str] = None
     activity_level: Optional[float] = None
     active_lens_id: Optional[int] = None
+    role: str
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -44,6 +45,7 @@ class UserNutritionProfileResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    role: str
 
 class UserProfileUpdate(BaseModel):
     weight_kg: Optional[float] = None
